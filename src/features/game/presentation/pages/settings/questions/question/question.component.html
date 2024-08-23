@@ -1,0 +1,123 @@
+<hlm-dialog-header>
+  <h3 hlmDialogTitle>{{ question ? "Edicion" : "Creacion" }} Pregunta</h3>
+</hlm-dialog-header>
+
+<form [formGroup]="questionForm">
+  <hlm-tabs tab="question_tab" class="w-full">
+    <header class="flex justify-between align-baseline">
+      <hlm-tabs-list class="inline-grid w-full grid-cols-2 sm:w-auto">
+        <button hlmTabsTrigger="question_tab">Pregunta</button>
+        <button hlmTabsTrigger="options_tab">Opciones</button>
+      </hlm-tabs-list>
+    </header>
+    <div hlmTabsContent="question_tab" class="w-full">
+      <div class="grid grid-cols-2 gap-4">
+        <div class="col-span-2">
+          <hlm-form-field>
+            <input
+              aria-label="Texto"
+              formControlName="text"
+              hlmInput
+              type="text"
+              placeholder="Descripcion de plagunta"
+              class="w-full"
+            />
+            <hlm-error>El campo es requerido</hlm-error>
+          </hlm-form-field>
+        </div>
+        <div>
+          <autocomplete
+            [options]="groups()"
+            (onFilter)="onFilterGroup($event)"
+            placeholder="Buscar area"
+          />
+        </div>
+        <div>
+          <input
+            class="w-full"
+            hlmInput
+            type="file"
+            accept="image/png, image/jpg, image/jpeg"
+            (change)="onSelectQuestionImage($event)"
+          />
+        </div>
+        @if(previewImages().question){
+        <div class="col-span-2">
+          <section class="w-full" hlmCard>
+            <div hlmCardHeader>
+              <h4 hlmCardTitle>Imagen</h4>
+            </div>
+            <div hlmCardContent>
+              <img [src]="previewImages().question" alt="image question" />
+            </div>
+            <div hlmCardFooter class="p-3">
+              <button hlmBtn variant="ghost">Remover</button>
+            </div>
+          </section>
+        </div>
+        }
+      </div>
+    </div>
+    <div hlmTabsContent="options_tab" class="w-full">
+      <div class="flex justify-between items-center py-3">
+        <span>Opciones</span>
+        <button hlmBtn size="icon" variant="outline" (click)="addOption()">
+          <hlm-icon size="sm" name="lucidePlus" />
+        </button>
+      </div>
+      <div
+        formArrayName="options"
+        class="flex max-h-[250px] w-full flex-col overflow-y-scroll space-y-4 p-2 border rounded-lg"
+      >
+        <div *ngFor="let control of options.controls; let i = index">
+          <div [formGroupName]="i">
+            <div class="flex items-center space-x-2">
+              <label class="flex items-center" hlmLabel>
+                <hlm-checkbox formControlName="isCorrect" />
+              </label>
+              <div class="space-y-2 grow">
+                <input
+                  aria-label="Texto"
+                  formControlName="text"
+                  class="w-full"
+                  hlmInput
+                  type="text"
+                  [placeholder]="'Opcion ' + (i + 1)"
+                />
+                <input
+                  class="w-full"
+                  hlmInput
+                  type="file"
+                  accept="image/png, image/gif, image/jpeg"
+                  (change)="onSelectOptionImage($event, i)"
+                />
+                <div class="">
+                  @if(previewImages().options[control.get('imageUrl')?.value]){
+                  <img
+                    [src]="
+                      previewImages().options[control.get('imageUrl')?.value]
+                    "
+                    alt=""
+                  />
+                  }
+                </div>
+              </div>
+              <button
+                hlmBtn
+                size="icon"
+                variant="outline"
+                (click)="removeOption(i)"
+              >
+                <hlm-icon size="sm" name="lucideTrash" />
+              </button>
+            </div>
+          </div>
+        </div>
+        @if(options.length===0){<span class="px-2">Sin opciones</span>}
+      </div>
+    </div>
+  </hlm-tabs>
+</form>
+<hlm-dialog-footer>
+  <button hlmBtn type="submit" (click)="save()">Guardar</button>
+</hlm-dialog-footer>

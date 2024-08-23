@@ -1,0 +1,31 @@
+<!-- <navbar/>
+<div class="flex justify-between ...">
+  <div>01</div>
+  <div>02</div>
+  <div>03</div>
+</div>
+<hlm-table class="table-auto">
+  <hlm-trow>
+    <hlm-th>Invoice</hlm-th>
+    <hlm-th>Status</hlm-th>
+    <hlm-th>Method</hlm-th>
+    <hlm-th>Amount</hlm-th>
+  </hlm-trow>
+  @for (invoice of _invoices; track invoice.invoice) {
+  <hlm-trow class="flex flex-col sm:flex-row">
+    <hlm-td truncate class="font-medium">{{ invoice.invoice }}</hlm-td>
+    <hlm-td>{{ invoice.paymentStatus }}</hlm-td>
+    <hlm-td>{{ invoice.paymentMethod }}</hlm-td>
+    <hlm-td>{{ invoice.totalAmount }}</hlm-td>
+  </hlm-trow>
+  }
+</hlm-table> -->
+<div class="flex flex-col min-h-screen">
+  <!-- Header -->
+  <navbar [items]="menu" />
+
+  <!-- Content -->
+  <main class="flex-grow sm:px-72 py-3">
+    <router-outlet/>
+  </main>
+</div>

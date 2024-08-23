@@ -1,0 +1,57 @@
+<header class="bg-white">
+  <!-- <div class="mx-auto max-w-7xl px-2 py-2">
+    <h1 class="text-xl font-bold tracking-tight text-gray-900">Preguntas</h1>
+  </div> -->
+  <div class="flex flex-row justify-between gap-4">
+    <input hlmInput class="w-full md:w-80" placeholder="Filter emails..." />
+    <button hlmBtn size="icon" variant="outline" (click)="create()">
+      <hlm-icon size="sm" name="lucidePlus" />
+    </button>
+  </div>
+</header>
+<!-- 
+<div class="flex flex-col justify-between gap-4 sm:flex-row">
+  <input
+    hlmInput
+    class="w-full md:w-80"
+    placeholder="Filter emails..."
+   
+  />
+
+  <button hlmBtn variant="outline" align="end" [brnMenuTriggerFor]="menu">
+    Columns
+    <hlm-icon name="lucideChevronDown" class="ml-2" size="sm" />
+  </button>
+  <ng-template #menu>
+    <hlm-menu class="w-32">
+      
+    </hlm-menu>
+  </ng-template>
+</div> -->
+
+<hlm-table class="w-full min-w-[400px]">
+  <hlm-trow>
+    <hlm-th class="w-40">Area</hlm-th>
+    <hlm-th class="w-60">Pregunta</hlm-th>
+    <hlm-th class="w-60">Estado</hlm-th>
+    <hlm-th class="w-60">Op</hlm-th>
+  </hlm-trow>
+  @for (element of datasource(); track $index) {
+  <hlm-trow>
+    <hlm-td truncate class="font-medium w-52">{{ element.group }}</hlm-td>
+    <hlm-td class="flex-1">{{ element.text }}</hlm-td>
+    <hlm-td class="flex-1">{{ element.isActive }}</hlm-td>
+    <hlm-td class="flex-1">
+      <button hlmBtn size="icon" variant="ghost" (click)="update(element)">
+        <hlm-icon size="sm" name="lucidePencil" />
+      </button>
+    </hlm-td>
+  </hlm-trow>
+  }
+</hlm-table>
+
+<paginator
+  [length]="datasize()"
+  [limit]="limit()"
+  (onPageChange)="changepage($event)"
+/>
