@@ -17,7 +17,7 @@ export const httpErrorsInterceptor: HttpInterceptorFn = (req, next) => {
 const handleHttpErrors = (error: HttpErrorResponse): void => {
   const description = Array.isArray(error.error['message'])
     ? error.error['message'][0] ?? ''
-    : 'Error desconocido';
+    : error.error['message'];
 
   switch (error.status) {
     case 500:

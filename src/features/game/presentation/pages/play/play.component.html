@@ -1,0 +1,51 @@
+<!-- <div class="container mx-auto px-4">
+    <header class="flex justify-between items-center py-4">
+      <div class="player">
+        <h2 class="text-2xl font-bold">Jugador 1</h2>
+        <p>Puntaje: 0</p>
+      </div>
+      <div class="player">
+        <h2 class="text-2xl font-bold">Jugador 2</h2>
+        <p>Puntaje: 0</p>
+      </div>
+    </header>
+  
+    <main class="flex flex-col items-center justify-center py-8">
+      <h3 class="text-2xl font-bold mb-4">Pregunta</h3>
+      <p class="text-lg">¿Cuál es la capital de Francia?</p>
+      <ul class="list-disc">
+        <li>Londres</li>
+        <li>París</li>
+        <li>Roma</li>
+      </ul>
+    </main>
+  </div> -->
+
+  <div class="h-screen bg-gray-100 p-4">
+    <!-- Contenedor Principal -->
+    <div class="grid grid-cols-2 gap-4 h-full">
+      <!-- Columna Izquierda: Pregunta -->
+      <div class="flex flex-col justify-center items-center bg-white p-6 rounded-lg shadow-lg">
+        <!-- Imagen de la Pregunta (opcional) -->
+        <img src="ruta-de-la-imagen" alt="Imagen de la pregunta" class="mb-4" *ngIf="pregunta.imagen">
+        
+        <!-- Texto de la Pregunta -->
+        <div class="text-2xl font-bold text-center">{{ pregunta.texto }}</div>
+      </div>
+      
+      <!-- Columna Derecha: Opciones -->
+      <div class="flex flex-col justify-center items-center bg-white p-6 rounded-lg shadow-lg">
+        <!-- Grid de Opciones -->
+        <div class="grid grid-cols-2 gap-4">
+          <div *ngFor="let opcion of pregunta.opciones" class="flex flex-col justify-center items-center bg-blue-500 text-white p-4 rounded-lg shadow hover:bg-blue-600">
+            <!-- Imagen de la Opción (opcional) -->
+            <img [src]="opcion.imagen" alt="Imagen de la opción" class="mb-2" *ngIf="opcion.imagen">
+            
+            <!-- Texto de la Opción -->
+            <div class="text-center">{{ opcion.texto }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  

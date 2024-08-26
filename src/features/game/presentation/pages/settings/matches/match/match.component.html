@@ -1,0 +1,62 @@
+<hlm-dialog-header class="mb-4">
+  <h3 hlmDialogTitle>{{ game ? "Edicion" : "Creacion" }} Partida</h3>
+</hlm-dialog-header>
+<form [formGroup]="matchForm" class="space-y-6" (ngSubmit)="save()">
+  <div formGroupName="player1" class="flex gap-x-4">
+    <div class="flex-1">
+      <hlm-form-field>
+        <input
+          aria-label="player 1"
+          formControlName="name"
+          class="w-full"
+          hlmInput
+          type="text"
+          placeholder="Nombre del participante 1"
+        />
+      </hlm-form-field>
+    </div>
+    <div class="flex-none w-36">
+      <hlm-form-field>
+        <input
+          aria-label="score 1"
+          formControlName="score"
+          class="w-full"
+          hlmInput
+          type="text"
+          placeholder="Puntaje"
+        />
+        <hlm-error>Your name is required</hlm-error>
+      </hlm-form-field>
+    </div>
+  </div>
+  <div formGroupName="player2" class="flex gap-x-4">
+    <div class="flex-1">
+      <hlm-form-field>
+        <input
+          aria-label="player 2"
+          formControlName="name"
+          class="w-full"
+          hlmInput
+          type="text"
+          placeholder="Nombre del participante 2"
+        />
+      </hlm-form-field>
+    </div>
+    <div class="flex-none w-36">
+      <hlm-form-field>
+        <input
+          aria-label="score 2"
+          formControlName="score"
+          class="w-full"
+          hlmInput
+          type="text"
+          placeholder="Puntaje"
+        />
+      </hlm-form-field>
+    </div>
+  </div>
+
+  <hlm-dialog-footer>
+    <button hlmBtn type="submit" [disabled]="matchForm.invalid">Guardar</button>
+  </hlm-dialog-footer>
+</form>

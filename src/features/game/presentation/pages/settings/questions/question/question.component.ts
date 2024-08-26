@@ -125,36 +125,42 @@ export class QuestionComponent implements OnInit {
   }
 
   save() {
-    // const subscription = this.question
-    //   ? this.questionService.createQuestion(this.questionForm.value)
-    //   : this.questionService.updateQeustion(this.questionForm.value);
-    // subscription.subscribe((data) => {});
+    const subscription = this.question
+      ? this.questionService.updateQeustion(
+          this.question._id,
+          this.questionForm.value
+        )
+      : this.questionService.createQuestion(this.questionForm.value);
+
+    subscription.subscribe((data) => {
+      this._dialogRef.close(data);
+    });
   }
 
   onSelectQuestionImage(event: any): void {
     const file: File = event.target.files[0];
     if (!file) return;
-    this.fileService.uploadImage(file).subscribe(({ secureUrl, fileName }) => {
-      this.questionForm.get('imageUrl')?.setValue(fileName);
-      this.previewImages.update((values) => ({
-        ...values,
-        question: secureUrl,
-      }));
+    this.fileService.uploadImage(file).subscribe(({ file }) => {
+      this.questionForm.get('imageUrl')?.setValue(file);
+      // this.previewImages.update((values) => ({
+      //   ...values,
+      //   question: secureUrl,
+      // }));
     });
   }
 
   onSelectOptionImage(event: any, index: number): void {
     const file: File = event.target.files[0];
     if (!file) return;
-    this.fileService.uploadImage(file).subscribe(({ fileName, secureUrl }) => {
-      const firstGroup = this.options.at(index) as FormGroup;
-      firstGroup.patchValue({ imageUrl: fileName });
-      this.previewImages.update((values) => {
-        const { options } = values;
-        options[fileName] = secureUrl;
-        return { ...values, options };
-      });
-    });
+    // this.fileService.uploadImage(file).subscribe(({ fileName, secureUrl }) => {
+    //   const firstGroup = this.options.at(index) as FormGroup;
+    //   firstGroup.patchValue({ imageUrl: fileName });
+    //   this.previewImages.update((values) => {
+    //     const { options } = values;
+    //     options[fileName] = secureUrl;
+    //     return { ...values, options };
+    //   });
+    // });
   }
 
   onFilterGroup(value: string | null) {
@@ -185,5 +191,4 @@ export class QuestionComponent implements OnInit {
   get options() {
     return this.questionForm.get('options') as FormArray;
   }
-
 }

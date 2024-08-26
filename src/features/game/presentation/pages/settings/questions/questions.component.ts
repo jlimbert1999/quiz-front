@@ -138,7 +138,11 @@ export class QuestionsComponent implements OnInit {
     });
     dialogRef.closed$.subscribe((question?: questionResponse) => {
       if (!question) return;
-      this.datasource.update((values) => [question, ...values]);
+      this.datasource.update((values) => {
+        const index = values.findIndex(({ _id }) => _id === question._id);
+        values[index] = question;
+        return [...values];
+      });
     });
   }
 

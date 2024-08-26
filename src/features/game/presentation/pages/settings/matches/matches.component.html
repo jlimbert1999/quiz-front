@@ -1,5 +1,8 @@
-<header class="bg-white shadow">
-  <div class="mx-auto max-w-7xl px-2 py-2">
-    <h1 class="text-xl font-bold tracking-tight text-gray-900">Partidas</h1>
+<header class="bg-white">
+  <div class="flex flex-row justify-between gap-4">
+    <input hlmInput class="w-full md:w-80" placeholder="Filter emails..." />
+    <button hlmBtn size="icon" variant="outline" (click)="create()">
+      <hlm-icon size="sm" name="lucidePlus" />
+    </button>
   </div>
 </header>

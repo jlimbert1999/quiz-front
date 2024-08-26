@@ -1,0 +1,51 @@
+<div class="flex justify-center py-6">
+  <div class="flex flex-col w-full sm:w-2/4 space-y-6">
+    <p class="text-center text-2xl">PARTIDAS DISPONIBLES</p>
+
+    <ul role="list" class="divide-y divide-slate-200 border-2">
+      @for (game of games(); track $index) {
+      <li class="p-3 hover:bg-gray-200">
+        <div class="flex items-center space-x-4">
+          <div class="flex-1">
+            <span class="text-xl font-bold mr-4">
+              {{ game.player1.name }}
+            </span>
+            <span class="text-base italic">VS</span>
+            <span class="text-xl font-bold ml-4">
+              {{ game.player1.name }}
+            </span>
+          </div>
+          <div class="inline-flex items-center space-x-2">
+            <div>
+              <hlm-tooltip>
+                <button
+                  hlmTooltipTrigger
+                  hlmBtn
+                  size="icon"
+                  routerLink="/game/control"
+                >
+                  <hlm-icon name="lucideLayoutDashboard" />
+                </button>
+                <span *brnTooltipContent>Panel de control</span>
+              </hlm-tooltip>
+            </div>
+            <div>
+              <hlm-tooltip>
+                <button
+                  hlmTooltipTrigger
+                  hlmBtn
+                  size="icon"
+                  (click)="startGame(game, '/game/play')"
+                >
+                  <hlm-icon name="lucidePlay" />
+                </button>
+                <span *brnTooltipContent>Presentacion</span>
+              </hlm-tooltip>
+            </div>
+          </div>
+        </div>
+      </li>
+      }
+    </ul>
+  </div>
+</div>

@@ -13,8 +13,8 @@ export class FileService {
   uploadImage(file: File) {
     const formData = new FormData();
     formData.append('file', file);
-    return this.http.post<{ secureUrl: string; fileName: string }>(
-      `${environment.base_url}/files`,
+    return this.http.post<{ file: string }>(
+      `${environment.base_url}/files/question`,
       formData
     );
   }

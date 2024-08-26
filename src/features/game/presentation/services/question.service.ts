@@ -7,18 +7,18 @@ import { questionResponse } from '../../infrastructure';
   providedIn: 'root',
 })
 export class QuestionService {
+  private readonly url = `${environment.base_url}/questions`;
   private http = inject(HttpClient);
 
   constructor() {}
 
-  createQuestion(form: any) {
-    return this.http.post(`${environment.base_url}/question`, form);
+  createQuestion(form: Object) {
+    return this.http.post<questionResponse>(this.url, form);
   }
 
-  updateQeustion(form: any) {
-    return this.http.post(`${environment.base_url}/question`, form);
+  updateQeustion(id: string, form: Object) {
+    return this.http.patch<questionResponse>(`${this.url}/${id}`, form);
   }
-
 
   getQuestions(pagination: { limit: number; offset: number }) {
     const params = new HttpParams({
@@ -30,7 +30,11 @@ export class QuestionService {
     }>(`${environment.base_url}/questions`, { params });
   }
 
+  getRandom(group: string) {
+    return this.http.get<questionResponse>(`${this.url}/play/${group}`);
+  }
+
   getGroups() {
-    return this.http.get<string[]>(`${environment.base_url}/groups`);
+    return this.http.get<string[]>(`${environment.base_url}/questions/groups`);
   }
 }
