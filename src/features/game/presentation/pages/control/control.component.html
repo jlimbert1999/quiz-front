@@ -1,65 +1,47 @@
-<div class="h-screen">
-  <div class="flex flex-col p-6 space-y-6">
-    <div class="flex justify-center">
-      <brn-select
-        class="inline-block"
-        placeholder="Seleccione el area"
-        [(ngModel)]="currentGroup"
-      >
-        <hlm-select-trigger class="w-56">
-          <hlm-select-value />
-        </hlm-select-trigger>
-        <hlm-select-content>
-          @for (group of groups(); track $index) {
-          <hlm-option [value]="group">{{ group }}</hlm-option>
-          }
-        </hlm-select-content>
-      </brn-select>
-    </div>
+<div class="h-screen flex flex-col p-4">
+  <div>hols</div>
+  <div class="flex">
+    <brn-select
+      class="inline-block"
+      placeholder="Seleccione el area"
+      [(ngModel)]="currentGroup"
+    >
+      <hlm-select-trigger class="w-56">
+        <hlm-select-value />
+      </hlm-select-trigger>
+      <hlm-select-content>
+        @for (group of groups(); track $index) {
+        <hlm-option [value]="group">{{ group }}</hlm-option>
+        }
+      </hlm-select-content>
+    </brn-select>
+  </div>
 
-    <div class="flex justify-center space-x-4">
-      <button
-        hlmBtn
-        [disabled]="!isNextEnabled()"
-        (click)="getRandomQuestion()"
-      >
-        Siguiente
-      </button>
-      <button hlmBtn (click)="toggleOptions()">Mostrar</button>
-      <button hlmBtn variant="destructive">Terminar</button>
-    </div>
-    @if(currentQuestion()){
-    <div class="max-w-xl mx-auto p-4">
-      <!-- Pregunta -->
-      <h2 class="text-2xl font-bold mb-6">
-        {{ currentQuestion()?.text }}
-      </h2>
+  <div class="flex justify-center space-x-4">
+    <button hlmBtn [disabled]="!isNextEnabled()" (click)="getRandomQuestion()">
+      Siguiente
+    </button>
+    <button hlmBtn (click)="toggleOptions()">Mostrar</button>
+    <button hlmBtn variant="destructive">Terminar</button>
+  </div>
 
-      <!-- Opciones -->
-      @if(isOptionsDisplayed()){ 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div
-            *ngFor="let option of currentQuestion()?.options"
-            class="p-4 border rounded-lg hover:bg-gray-100 cursor-pointer"
-          >
-            <!-- Imagen si existe -->
-            <!-- <div class="mb-2">
-              <img
-                src="https://e.rpp-noticias.io/xlarge/2016/05/08/433443_136574.jpg"
-                alt="Opción"
-                class="w-full h-auto"
-              />
-            </div> -->
-  
-            <!-- Texto si existe -->
-            <div class="text-lg text-center">{{ option.text }}</div>
-          </div>
+  <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-4xl space-y-4">
+    @if(match().currentQuestion) {
+    <p class="text-2xl text-center font-bold">
+      {{ match().currentQuestion?.text }}
+    </p>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      @for (item of match().currentQuestion?.options; track $index) {
+      <div class="cursor-pointer border rounded-lg shadow hover:bg-gray-300 p-4 flex flex-col items-center">
+        <!-- <div class="mb-4">
+            <img class="max-w-64" alt="Option image" />
+          </div> -->
+        <div>
+          <p class="text-lg font-semibold text-center">{{ item.text }}</p>
         </div>
+      </div>
       }
-     
     </div>
-    } @else {
-    <span class="text-center text-2xl p-3"></span>
     }
   </div>
 </div>

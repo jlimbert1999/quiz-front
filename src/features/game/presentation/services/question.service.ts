@@ -30,9 +30,7 @@ export class QuestionService {
     }>(`${environment.base_url}/questions`, { params });
   }
 
-  getRandom(group: string) {
-    return this.http.get<questionResponse>(`${this.url}/play/${group}`);
-  }
+  
 
   getGroups() {
     return this.http.get<string[]>(`${environment.base_url}/questions/groups`);

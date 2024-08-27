@@ -11,5 +11,5 @@ export interface questionResponse {
 export interface questionOptionResponse {
   text: string;
   imageUrl?: string;
-  isCorrest: boolean;
+  isCorrect: boolean;
 }

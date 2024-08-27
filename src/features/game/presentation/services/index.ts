@@ -1,3 +1,5 @@
 export * from './file.service'
 export * from './question.service'
 export * from './game.service'
+export * from './transmision.service'
+export * from './match.service'

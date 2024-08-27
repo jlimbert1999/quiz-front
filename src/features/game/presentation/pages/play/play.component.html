@@ -1,51 +1,80 @@
-<!-- <div class="container mx-auto px-4">
-    <header class="flex justify-between items-center py-4">
-      <div class="player">
-        <h2 class="text-2xl font-bold">Jugador 1</h2>
-        <p>Puntaje: 0</p>
+<div class="flex flex-col h-screen">
+  <!-- Barra Superior -->
+  <div class="flex justify-between items-center px-4 py-2 bg-gray-100">
+    <!-- Jugador 1 -->
+    <div class="flex items-center space-x-3">
+      <img
+        src="/assets/player1.png"
+        alt="Jugador 1"
+        class="w-10 h-10 rounded-full"
+      />
+      <div>
+        <p class="text-lg font-semibold">{{ match().player1.name }}</p>
+        <p class="text-2xl text-gray-600">
+          Puntaje: {{ match().player1.score }}
+        </p>
       </div>
-      <div class="player">
-        <h2 class="text-2xl font-bold">Jugador 2</h2>
-        <p>Puntaje: 0</p>
-      </div>
-    </header>
-  
-    <main class="flex flex-col items-center justify-center py-8">
-      <h3 class="text-2xl font-bold mb-4">Pregunta</h3>
-      <p class="text-lg">¿Cuál es la capital de Francia?</p>
-      <ul class="list-disc">
-        <li>Londres</li>
-        <li>París</li>
-        <li>Roma</li>
-      </ul>
-    </main>
-  </div> -->
+    </div>
 
-  <div class="h-screen bg-gray-100 p-4">
-    <!-- Contenedor Principal -->
-    <div class="grid grid-cols-2 gap-4 h-full">
-      <!-- Columna Izquierda: Pregunta -->
-      <div class="flex flex-col justify-center items-center bg-white p-6 rounded-lg shadow-lg">
-        <!-- Imagen de la Pregunta (opcional) -->
-        <img src="ruta-de-la-imagen" alt="Imagen de la pregunta" class="mb-4" *ngIf="pregunta.imagen">
-        
-        <!-- Texto de la Pregunta -->
-        <div class="text-2xl font-bold text-center">{{ pregunta.texto }}</div>
+    <!-- Contador en el centro -->
+    <div class="text-center">
+      <p class="text-2xl font-bold">2</p>
+    </div>
+
+    <!-- Jugador 2 -->
+    <div class="flex items-center space-x-3">
+      <div class="text-right">
+        <p class="text-lg font-semibold">{{ match().player2.name }}</p>
+        <p class="text-2xl text-gray-600">
+          Puntaje: {{ match().player2.score }}
+        </p>
       </div>
-      
-      <!-- Columna Derecha: Opciones -->
-      <div class="flex flex-col justify-center items-center bg-white p-6 rounded-lg shadow-lg">
-        <!-- Grid de Opciones -->
-        <div class="grid grid-cols-2 gap-4">
-          <div *ngFor="let opcion of pregunta.opciones" class="flex flex-col justify-center items-center bg-blue-500 text-white p-4 rounded-lg shadow hover:bg-blue-600">
-            <!-- Imagen de la Opción (opcional) -->
-            <img [src]="opcion.imagen" alt="Imagen de la opción" class="mb-2" *ngIf="opcion.imagen">
-            
-            <!-- Texto de la Opción -->
-            <div class="text-center">{{ opcion.texto }}</div>
-          </div>
+      <img
+        src="/assets/player2.png"
+        alt="Jugador 2"
+        class="w-10 h-10 rounded-full"
+      />
+    </div>
+  </div>
+
+  <!-- Contenedor Principal -->
+  <div class="flex h-full">
+    <!-- Contenido de la pregunta y opciones aquí -->
+    <!-- Lado Izquierdo -->
+    <div
+      class="flex items-center justify-center p-4"
+      [ngClass]="isOptionsDisplayed() ? 'w-1/2' : 'w-full'"
+    >
+      <div>
+        <!-- <img
+          src="ruta-a-la-imagen"
+          alt="Imagen de la Pregunta"
+          class="mt-4 mx-auto max-w-full h-auto"
+          *ngIf="pregunta.imagen"
+        /> -->
+        <p class="mt-4 text-4xl text-center">
+          {{ match().currentQuestion?.text }}
+        </p>
+      </div>
+    </div>
+    @if(isOptionsDisplayed()){
+
+    <!-- Lado Derecho -->
+    <div
+      class="w-1/2 flex items-center justify-center p-4 animate__animated animate__fadeInRight animate__faster"
+    >
+      <div class="flex flex-col gap-4">
+        <div
+          *ngFor="let opcion of match().currentQuestion?.options"
+          class="border p-4 flex flex-col items-center justify-center"
+        >
+          
+        <p class="text-xl text-center">
+          {{ opcion.text }}
+        </p>
         </div>
       </div>
     </div>
+    }
   </div>
-  
+</div>
