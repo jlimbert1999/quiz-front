@@ -21,9 +21,9 @@ import { HlmSelectImports } from '@spartan-ng/ui-select-helm';
     HlmButtonDirective,
   ],
   template: `
-    <div class="flex flex-col justify-between mt-4 sm:flex-row sm:items-center">
+    <div class="flex p-2 flex-col justify-between sm:flex-row sm:items-center">
       <span class="text-sm text-muted-foreground text-sm"
-        >{{ offset() }} of {{ length() }} row(s) selected</span
+        > {{ limit() }} de {{ length() }}</span
       >
       <div class="flex mt-2 sm:mt-0">
         <!-- <brn-select class="inline-block">
@@ -51,23 +51,31 @@ import { HlmSelectImports } from '@spartan-ng/ui-select-helm';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PaginatorComponent {
-  sizes = input<number[]>([10, 20, 40, 50]);
-  limit = input.required<number>();
   length = input.required<number>();
+  limit = input.required<number>();
+  pageSizeOptions = input<number[]>([]);
 
-  onPageChange = output<{ limit: number; offset: number }>();
+  onPageChange = output<{ pageSize: number; pageOffset: number }>();
+
   index = signal<number>(0);
-  offset = computed(() => this.limit() * this.index());
-
+  offset = computed(() => this.index() * this.limit());
+  remainig = computed(() => this.length() - this.offset());
+  
   next() {
-    if (this.offset() >= this.length()) return;
+    if (this.offset() > this.remainig()) return;
     this.index.update((value) => (value += 1));
-    this.onPageChange.emit({ offset: this.offset(), limit: this.limit() });
+    this.onPageChange.emit({
+      pageSize: this.limit(),
+      pageOffset: this.offset(),
+    });
   }
 
   back() {
-    if (this.index() <= 0) return;
+    if (this.index() === 0) return;
     this.index.update((value) => (value -= 1));
-    this.onPageChange.emit({ offset: this.offset(), limit: this.limit() });
+    this.onPageChange.emit({
+      pageSize: this.limit(),
+      pageOffset: this.offset(),
+    });
   }
 }

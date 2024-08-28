@@ -25,6 +25,14 @@ export class TransmisionService {
     });
   }
 
+  listenAnswerQuestion(): Observable<number> {
+    return new Observable((observable) => {
+      this.socket.on('answer-question', (index: number) => {
+        observable.next(index);
+      });
+    });
+  }
+
   showQuestionOptions(gameId: string) {
     this.socket.emit('show-options', gameId);
   }

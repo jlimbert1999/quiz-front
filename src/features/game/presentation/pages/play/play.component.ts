@@ -17,6 +17,36 @@ import { TransmisionService, MatchService } from '../../services';
   imports: [CommonModule],
   templateUrl: './play.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  styles:`
+
+
+@keyframes fall {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(100vh);
+  }
+}
+
+@keyframes flash {
+  0%, 100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.animate-fall {
+  animation: fall 2s linear infinite;
+}
+
+.animate-flash {
+  animation: flash 0.5s ease-out;
+}
+
+  `
 })
 export class PlayComponent implements OnInit {
   private transmisionService = inject(TransmisionService);
@@ -29,10 +59,21 @@ export class PlayComponent implements OnInit {
   );
 
   isOptionsDisplayed = signal<boolean>(false);
+  selectedIndex = signal<number | null>(null);
+
+  confetti = Array.from({ length: 100 }, () => ({
+    style: {
+      left: Math.random() * 100 + '%',
+      top: Math.random() * -100 + '%',
+      transform: `rotate(${Math.random() * 360}deg)`,
+      fontSize: Math.random() * 2 + 1 + 'rem',
+    },
+  }));
 
   constructor() {
     this._listenNextQuestion();
     this._listenDisplayOptions();
+    this._listenAnswerQuestion();
   }
 
   text = signal<string>('Esperando');
@@ -54,6 +95,7 @@ export class PlayComponent implements OnInit {
       .pipe(takeUntilDestroyed())
       .subscribe((question) => {
         this.isOptionsDisplayed.set(false);
+        this.selectedIndex.set(null);
         this.match.update((values) => ({
           ...values,
           currentQuestion: question,
@@ -67,6 +109,15 @@ export class PlayComponent implements OnInit {
       .pipe(takeUntilDestroyed())
       .subscribe(() => {
         this.isOptionsDisplayed.set(true);
+      });
+  }
+
+  private _listenAnswerQuestion() {
+    this.transmisionService
+      .listenAnswerQuestion()
+      .pipe(takeUntilDestroyed())
+      .subscribe((index) => {
+        this.selectedIndex.set(index);
       });
   }
 

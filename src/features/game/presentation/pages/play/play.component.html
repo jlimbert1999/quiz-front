@@ -1,16 +1,16 @@
-<div class="flex flex-col h-screen">
+<div class="flex flex-col h-screen relative">
   <!-- Barra Superior -->
-  <div class="flex justify-between items-center px-4 py-2 bg-gray-100">
+  <div class="flex justify-between items-center px-4 py-2 absolute w-full">
     <!-- Jugador 1 -->
-    <div class="flex items-center space-x-3">
+    <div class="flex items-center space-x-6">
       <img
         src="/assets/player1.png"
         alt="Jugador 1"
         class="w-10 h-10 rounded-full"
       />
       <div>
-        <p class="text-lg font-semibold">{{ match().player1.name }}</p>
-        <p class="text-2xl text-gray-600">
+        <p class="text-3xl font-semibold">{{ match().player1.name }}</p>
+        <p class="text-4xl text-gray-600">
           Puntaje: {{ match().player1.score }}
         </p>
       </div>
@@ -22,10 +22,10 @@
     </div>
 
     <!-- Jugador 2 -->
-    <div class="flex items-center space-x-3">
+    <div class="flex items-center space-x-6">
       <div class="text-right">
-        <p class="text-lg font-semibold">{{ match().player2.name }}</p>
-        <p class="text-2xl text-gray-600">
+        <p class="text-3xl font-semibold">{{ match().player2.name }}</p>
+        <p class="text-4xl text-gray-600">
           Puntaje: {{ match().player2.score }}
         </p>
       </div>
@@ -52,7 +52,7 @@
           class="mt-4 mx-auto max-w-full h-auto"
           *ngIf="pregunta.imagen"
         /> -->
-        <p class="mt-4 text-4xl text-center">
+        <p class="mt-4 text-4xl text-center px-4">
           {{ match().currentQuestion?.text }}
         </p>
       </div>
@@ -63,15 +63,21 @@
     <div
       class="w-1/2 flex items-center justify-center p-4 animate__animated animate__fadeInRight animate__faster"
     >
-      <div class="flex flex-col gap-4">
+      <div class="flex flex-col gap-4 w-11/12">
         <div
-          *ngFor="let opcion of match().currentQuestion?.options"
-          class="border p-4 flex flex-col items-center justify-center"
+          *ngFor="
+            let opcion of match().currentQuestion?.options;
+            let index = index
+          "
+          class="border p-4 flex flex-col rounded-xl items-center justify-center"
+          [ngClass]="{
+            'bg-green-600 text-white': opcion.isCorrect && selectedIndex() === index,
+            'bg-red-600 text-white': !opcion.isCorrect && selectedIndex() === index,
+          }"
         >
-          
-        <p class="text-xl text-center">
-          {{ opcion.text }}
-        </p>
+          <p class="text-2xl text-center">
+            {{ opcion.text }}
+          </p>
         </div>
       </div>
     </div>

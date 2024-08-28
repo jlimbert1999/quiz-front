@@ -30,6 +30,13 @@ export class MatchService {
     );
   }
 
+  answerQuestion(gameId: string, selectedIndex: number) {
+    return this.http.post<{ message: string }>(`${this.url}/answer`, {
+      gameId: gameId,
+      selectedIndex: selectedIndex,
+    });
+  }
+
   private _setGame(game: gameResponse): boolean {
     localStorage.setItem('match', game._id);
     this._currentMatch.set(game);

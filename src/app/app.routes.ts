@@ -14,6 +14,7 @@ export const routes: Routes = [
     path: 'settings',
     component: SettingsComponent,
     children: [
+      // { path: '', redirectTo: 'matches' },
       { path: 'matches', component: MatchesComponent },
       { path: 'questions', component: QuestionsComponent },
     ],

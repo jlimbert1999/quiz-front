@@ -30,7 +30,9 @@ export class QuestionService {
     }>(`${environment.base_url}/questions`, { params });
   }
 
-  
+  upload(data: any[]) {
+    return this.http.post(`${this.url}/upload`, data);
+  }
 
   getGroups() {
     return this.http.get<string[]>(`${environment.base_url}/questions/groups`);

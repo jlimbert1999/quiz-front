@@ -120,6 +120,8 @@ export class QuestionComponent implements OnInit {
 
   previewImages = signal<previewImages>({ question: '', options: {} });
 
+  preview = signal<string[]>([]);
+
   ngOnInit(): void {
     this._loadForm();
   }
@@ -140,18 +142,22 @@ export class QuestionComponent implements OnInit {
   onSelectQuestionImage(event: any): void {
     const file: File = event.target.files[0];
     if (!file) return;
-    this.fileService.uploadImage(file).subscribe(({ file }) => {
-      this.questionForm.get('imageUrl')?.setValue(file);
-      // this.previewImages.update((values) => ({
-      //   ...values,
-      //   question: secureUrl,
-      // }));
-    });
+  
+
+    // this.fileService.uploadImage(file).subscribe(({ file }) => {
+    //   this.questionForm.get('imageUrl')?.setValue(file);
+    //   // this.previewImages.update((values) => ({
+    //   //   ...values,
+    //   //   question: secureUrl,
+    //   // }));
+    // });
   }
 
   onSelectOptionImage(event: any, index: number): void {
     const file: File = event.target.files[0];
     if (!file) return;
+    const firstGroup = this.options.at(index) as FormGroup;
+    firstGroup.get('imageUrl')?.setValue(URL.createObjectURL(file))
     // this.fileService.uploadImage(file).subscribe(({ fileName, secureUrl }) => {
     //   const firstGroup = this.options.at(index) as FormGroup;
     //   firstGroup.patchValue({ imageUrl: fileName });
@@ -170,7 +176,7 @@ export class QuestionComponent implements OnInit {
   addOption() {
     this.options.push(
       this.formBuilder.group({
-        text: [],
+        text: [''],
         imageUrl: [],
         isCorrect: [false],
       })

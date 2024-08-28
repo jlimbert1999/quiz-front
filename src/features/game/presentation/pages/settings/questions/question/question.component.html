@@ -2,8 +2,8 @@
   <h3 hlmDialogTitle>{{ question ? "Edicion" : "Creacion" }} Pregunta</h3>
 </hlm-dialog-header>
 
-<form [formGroup]="questionForm">
-  <hlm-tabs tab="question_tab" class="w-full">
+<form [formGroup]="questionForm" class="sm:w-[600px]">
+  <hlm-tabs tab="question_tab">
     <header class="flex justify-between align-baseline">
       <hlm-tabs-list class="inline-grid w-full grid-cols-2 sm:w-auto">
         <button hlmTabsTrigger="question_tab">Pregunta</button>
@@ -59,7 +59,7 @@
       </div>
     </div>
     <div hlmTabsContent="options_tab" class="w-full">
-      <div class="flex justify-between items-center py-3">
+      <div class="flex justify-between items-center py-2">
         <span>Opciones</span>
         <button hlmBtn size="icon" variant="outline" (click)="addOption()">
           <hlm-icon size="sm" name="lucidePlus" />
@@ -78,7 +78,7 @@
               <div class="space-y-2 grow">
                 <input
                   aria-label="Texto"
-                  formControlName="text"
+                  formControlName="imageUrl"
                   class="w-full"
                   hlmInput
                   type="text"
@@ -91,15 +91,8 @@
                   accept="image/png, image/gif, image/jpeg"
                   (change)="onSelectOptionImage($event, i)"
                 />
-                <div class="">
-                  @if(previewImages().options[control.get('imageUrl')?.value]){
-                  <img
-                    [src]="
-                      previewImages().options[control.get('imageUrl')?.value]
-                    "
-                    alt=""
-                  />
-                  }
+                <div class="h-24">
+                  <img [src]="control.get('imageUrl')?.value" alt="">
                 </div>
               </div>
               <button

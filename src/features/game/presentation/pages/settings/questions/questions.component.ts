@@ -10,15 +10,7 @@ import {
   TrackByFunction,
 } from '@angular/core';
 
-import {
-  lucideArrowUpDown,
-  lucideChevronDown,
-  lucidePlus,
-  lucideMoveHorizontal,
-  lucideMoveVertical,
-  lucideMenu,
-  lucidePencil,
-} from '@ng-icons/lucide';
+import { lucidePlus, lucidePencil, lucideUpload } from '@ng-icons/lucide';
 import { HlmDialogService } from '@spartan-ng/ui-dialog-helm';
 import {
   HlmButtonDirective,
@@ -43,13 +35,22 @@ import {
   useBrnColumnManager,
 } from '@spartan-ng/ui-table-brain';
 import { HlmTableModule } from '@spartan-ng/ui-table-helm';
-import { SelectionModel } from '@angular/cdk/collections';
+
 import { toSignal, toObservable } from '@angular/core/rxjs-interop';
 import { debounceTime, map } from 'rxjs';
+import { read, utils } from 'xlsx';
+import Swal from 'sweetalert2';
+
 import { QuestionService } from '../../../services';
 import { questionResponse } from '../../../../infrastructure';
 import { PaginatorComponent } from '../../../../../shared';
+import { HlmBadgeDirective } from '@spartan-ng/ui-badge-helm';
 
+interface uploadData {
+  text: string;
+  group: string;
+  options: { text: string; isCorrect: boolean }[];
+}
 @Component({
   selector: 'app-questions',
   standalone: true,
@@ -80,17 +81,15 @@ import { PaginatorComponent } from '../../../../../shared';
     BrnSelectModule,
     HlmSelectModule,
     PaginatorComponent,
+    HlmBadgeDirective,
   ],
   templateUrl: './questions.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [
     provideIcons({
-      lucideChevronDown,
-      lucideMoveVertical,
       lucidePlus,
-      lucideMenu,
-
       lucidePencil,
+      lucideUpload,
     }),
   ],
   host: {
@@ -146,9 +145,56 @@ export class QuestionsComponent implements OnInit {
     });
   }
 
-  changepage(params: { offset: number; limit: number }) {
-    this.limit.set(params.limit);
-    this.offset.set(params.offset);
+  changepage(params: { pageSize: number; pageOffset: number }) {
+    this.limit.set(params.pageSize);
+    this.offset.set(params.pageOffset);
     this.getQuestions();
+  }
+
+  async loadExcelFile() {
+    const { value: file } = await Swal.fire({
+      title: 'Seleccione el archivo a cargar',
+      text: 'Formatos permitidos :ods, csv, xlsx',
+      input: 'file',
+      showCancelButton: true,
+      confirmButtonText: 'Aceptar',
+      cancelButtonText: 'Cancelar',
+      inputAttributes: {
+        accept:
+          '.ods, csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel',
+        'aria-label': 'Cargar archivo excel',
+      },
+    });
+    if (file) {
+      const reader = new FileReader();
+      reader.readAsBinaryString(file);
+      reader.onload = (e) => {
+        const wb = read(reader.result, {
+          type: 'binary',
+          cellDates: true,
+        });
+        const uploadData: uploadData[] = [];
+        wb.SheetNames.forEach((sheet) => {
+          const data = utils.sheet_to_json<any>(wb.Sheets[sheet]);
+          data.forEach((el) => {
+            if (el['PREGUNTA']) {
+              uploadData.push({
+                text: el['PREGUNTA'],
+                group: sheet,
+                options: [],
+              });
+            } else {
+              if (el['OPCIONES']) {
+                uploadData.at(-1)?.options.push({
+                  text: el['OPCIONES'],
+                  isCorrect: el['RESPUESTA'] ? true : false,
+                });
+              }
+            }
+          });
+        });
+        this.questionService.upload(uploadData).subscribe();
+      };
+    }
   }
 }

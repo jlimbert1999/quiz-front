@@ -28,7 +28,7 @@
 
   <!-- Mobile menu, show/hide based on menu state. -->
   @if(open()){
-  <div class="sm:hidden absolute bg-white w-screen" id="mobile-menu">
+  <div class="sm:hidden absolute bg-white w-screen border-2" id="mobile-menu">
     <div class="space-y-1 px-2 pb-3 pt-2">
       <!-- Current: "bg-gray-900 text-white", Default:  hover:bg-gray-700 hover:text-white" -->
       @for (item of items(); track $index) {
