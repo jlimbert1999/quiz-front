@@ -23,7 +23,7 @@ import { HlmSelectImports } from '@spartan-ng/ui-select-helm';
   template: `
     <div class="flex p-2 flex-col justify-between sm:flex-row sm:items-center">
       <span class="text-sm text-muted-foreground text-sm"
-        > {{ limit() }} de {{ length() }}</span
+        >  </span
       >
       <div class="flex mt-2 sm:mt-0">
         <!-- <brn-select class="inline-block">

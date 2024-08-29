@@ -48,18 +48,18 @@ import {
   HlmTabsTriggerDirective,
   HlmTabsContentDirective,
 } from '@spartan-ng/ui-tabs-helm';
-import {
-  HlmCardDirective,
-  HlmCardHeaderDirective,
-  HlmCardTitleDirective,
-  HlmCardDescriptionDirective,
-  HlmCardContentDirective,
-} from '@spartan-ng/ui-card-helm';
 
-interface previewImages {
-  question: string;
-  options: Record<string, string>;
+import { concat, Observable, switchMap, tap, toArray } from 'rxjs';
+
+interface fileProps {
+  file?: File;
+  preview: string;
 }
+interface fileUploadProps {
+  question: fileProps;
+  options: fileProps[];
+}
+
 @Component({
   selector: 'app-question',
   standalone: true,
@@ -80,17 +80,10 @@ interface previewImages {
     HlmLabelDirective,
     HlmCheckboxComponent,
     AutocompleteComponent,
-
     HlmTabsComponent,
     HlmTabsListComponent,
     HlmTabsTriggerDirective,
     HlmTabsContentDirective,
-
-    HlmCardDirective,
-    HlmCardHeaderDirective,
-    HlmCardTitleDirective,
-    HlmCardDescriptionDirective,
-    HlmCardContentDirective,
   ],
   templateUrl: './question.component.html',
   changeDetection: ChangeDetectionStrategy.Default,
@@ -116,57 +109,54 @@ export class QuestionComponent implements OnInit {
     options: this.formBuilder.array([]),
     imageUrl: [],
   });
+
   groups = toSignal(this.questionService.getGroups(), { initialValue: [] });
 
-  previewImages = signal<previewImages>({ question: '', options: {} });
-
-  preview = signal<string[]>([]);
+  selectedFiles = signal<fileUploadProps>({
+    question: { preview: '' },
+    options: [],
+  });
 
   ngOnInit(): void {
     this._loadForm();
   }
 
   save() {
-    const subscription = this.question
-      ? this.questionService.updateQeustion(
-          this.question._id,
-          this.questionForm.value
+    this._uploadImages()
+      .pipe(
+        switchMap(() =>
+          this.question
+            ? this.questionService.update(
+                this.question._id,
+                this.questionForm.value
+              )
+            : this.questionService.create(this.questionForm.value)
         )
-      : this.questionService.createQuestion(this.questionForm.value);
+      )
+      .subscribe((data) => {
+        this._dialogRef.close(data);
+      });
+  }
 
-    subscription.subscribe((data) => {
-      this._dialogRef.close(data);
+  onSelectQuestionImage(event: Event): void {
+    const file = this._onInputFileSelect(event);
+    if (!file) return;
+    this.selectedFiles.update((values) => ({
+      ...values,
+      question: { file: file, preview: URL.createObjectURL(file) },
+    }));
+  }
+
+  onSelectOptionImage(event: Event, index: number): void {
+    const file = this._onInputFileSelect(event);
+    if (!file) return;
+    this.selectedFiles.update((values) => {
+      values.options[index] = {
+        file: file,
+        preview: URL.createObjectURL(file),
+      };
+      return { ...values };
     });
-  }
-
-  onSelectQuestionImage(event: any): void {
-    const file: File = event.target.files[0];
-    if (!file) return;
-  
-
-    // this.fileService.uploadImage(file).subscribe(({ file }) => {
-    //   this.questionForm.get('imageUrl')?.setValue(file);
-    //   // this.previewImages.update((values) => ({
-    //   //   ...values,
-    //   //   question: secureUrl,
-    //   // }));
-    // });
-  }
-
-  onSelectOptionImage(event: any, index: number): void {
-    const file: File = event.target.files[0];
-    if (!file) return;
-    const firstGroup = this.options.at(index) as FormGroup;
-    firstGroup.get('imageUrl')?.setValue(URL.createObjectURL(file))
-    // this.fileService.uploadImage(file).subscribe(({ fileName, secureUrl }) => {
-    //   const firstGroup = this.options.at(index) as FormGroup;
-    //   firstGroup.patchValue({ imageUrl: fileName });
-    //   this.previewImages.update((values) => {
-    //     const { options } = values;
-    //     options[fileName] = secureUrl;
-    //     return { ...values, options };
-    //   });
-    // });
   }
 
   onFilterGroup(value: string | null) {
@@ -181,20 +171,76 @@ export class QuestionComponent implements OnInit {
         isCorrect: [false],
       })
     );
+    this.selectedFiles.update((values) => {
+      values.options.push({ preview: '' });
+      return { ...values };
+    });
   }
 
   removeOption(index: number) {
     this.options.removeAt(index);
-  }
-
-  private _loadForm(): void {
-    if (!this.question) return;
-    const { options } = this.question;
-    options.forEach(() => this.addOption());
-    this.questionForm.patchValue(this.question);
+    this.selectedFiles.update((values) => {
+      values.options.splice(index, 1);
+      return { ...values };
+    });
   }
 
   get options() {
     return this.questionForm.get('options') as FormArray;
+  }
+
+  private _loadForm(): void {
+    if (!this.question) return;
+    const { options, imageUrl, ...props } = this.question;
+    options.forEach(() => this.addOption());
+    this.questionForm.patchValue({
+      ...props,
+      imageUrl: imageUrl ? imageUrl.split('/').pop() : null,
+      options: options.map((option) => ({
+        ...option,
+        imageUrl: option.imageUrl ? option.imageUrl.split('/').pop() : null,
+      })),
+    });
+
+    this.selectedFiles.set({
+      question: { preview: imageUrl ?? '' },
+      options: options.map(({ imageUrl }) => ({ preview: imageUrl ?? '' })),
+    });
+  }
+
+  private _onInputFileSelect(event: Event): File | null {
+    const inputElement = event.target as HTMLInputElement;
+    if (!inputElement.files || inputElement.files.length === 0) return null;
+    return inputElement.files[0];
+  }
+
+  private _uploadImages() {
+    const subscriptions: Observable<{ file: string }>[] = [];
+    const { question, options } = this.selectedFiles();
+    if (question?.file) {
+      subscriptions.push(this.fileService.uploadImage(question.file));
+    }
+    options.forEach((option) => {
+      if (option.file) {
+        subscriptions.push(this.fileService.uploadImage(option.file));
+      }
+    });
+    return concat(...subscriptions).pipe(
+      toArray(),
+      tap((resp) => this._setImageUrl(resp.map(({ file }) => file)))
+    );
+  }
+
+  private _setImageUrl(filenames: string[]) {
+    if (filenames.length === 0) return;
+    if (this.selectedFiles().question?.file) {
+      this.questionForm.get('imageUrl')?.setValue(filenames.shift() ?? null);
+    }
+    this.selectedFiles().options.forEach((option, index) => {
+      if (option.file) {
+        const optionForm = this.options.at(index) as FormGroup;
+        optionForm.get('imageUrl')?.setValue(filenames.shift() ?? null);
+      }
+    });
   }
 }

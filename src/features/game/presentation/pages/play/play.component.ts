@@ -10,14 +10,16 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { questionResponse } from '../../../infrastructure';
 import { TransmisionService, MatchService } from '../../services';
+import { ClausePipe } from '../../pipes/clause.pipe';
+import { interval, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-play',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ClausePipe],
   templateUrl: './play.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  styles:`
+  styles: `
 
 
 @keyframes fall {
@@ -46,11 +48,12 @@ import { TransmisionService, MatchService } from '../../services';
   animation: flash 0.5s ease-out;
 }
 
-  `
+  `,
 })
 export class PlayComponent implements OnInit {
   private transmisionService = inject(TransmisionService);
   private matchService = inject(MatchService);
+  private timerSubscription?: Subscription;
 
   match = signal(this.matchService.currentMatch()!);
 
@@ -60,7 +63,7 @@ export class PlayComponent implements OnInit {
 
   isOptionsDisplayed = signal<boolean>(false);
   selectedIndex = signal<number | null>(null);
-
+  remainingTime = signal<number>(60);
   confetti = Array.from({ length: 100 }, () => ({
     style: {
       left: Math.random() * 100 + '%',
@@ -70,6 +73,21 @@ export class PlayComponent implements OnInit {
     },
   }));
 
+  startTimer() {
+    this.timerSubscription = interval(1000).subscribe(() => {
+      if (this.remainingTime() > 0) {
+        this.remainingTime.update((values) => (values -= 1));
+      } else {
+        this.stopTimer();
+      }
+    });
+  }
+  stopTimer() {
+    if (this.timerSubscription) {
+      this.timerSubscription.unsubscribe();
+    }
+  }
+
   constructor() {
     this._listenNextQuestion();
     this._listenDisplayOptions();
@@ -77,15 +95,6 @@ export class PlayComponent implements OnInit {
   }
 
   text = signal<string>('Esperando');
-  pregunta = {
-    texto: '¿Cuál es la capital de Francia?',
-    imagen: 'assets/eiffel-tower.jpg',
-    opciones: [
-      { texto: 'Londres', valor: 'londres' },
-      { texto: 'París', valor: 'paris', imagen: 'assets/paris.jpg' },
-      { texto: 'Roma', valor: 'roma' },
-    ],
-  };
 
   ngOnInit(): void {}
 
@@ -108,6 +117,7 @@ export class PlayComponent implements OnInit {
       .listenDisplayOptions()
       .pipe(takeUntilDestroyed())
       .subscribe(() => {
+        this.startTimer();
         this.isOptionsDisplayed.set(true);
       });
   }
@@ -117,16 +127,9 @@ export class PlayComponent implements OnInit {
       .listenAnswerQuestion()
       .pipe(takeUntilDestroyed())
       .subscribe((index) => {
+        this.stopTimer();
         this.selectedIndex.set(index);
       });
-  }
-
-  opcionesNoGrandes(): boolean {
-    // Aquí puedes definir tu lógica para decidir si las opciones son grandes o no
-    // Esto puede depender de la longitud del texto, el tamaño de la imagen, etc.
-    return this.pregunta.opciones.every((opcion) =>
-      this.esOpcionPequena(opcion)
-    );
   }
 
   esOpcionPequena(opcion: any): boolean {

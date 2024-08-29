@@ -5,6 +5,7 @@ import {
   effect,
   inject,
   input,
+  model,
   OnInit,
   output,
   signal,
@@ -106,7 +107,6 @@ import {
 })
 export class AutocompleteComponent<T> implements OnInit {
   private destroyRef = inject(DestroyRef);
-
   placeholder = input('Buscar elemento');
   options = input.required<string[]>();
   async = input<boolean>(false);
@@ -114,7 +114,7 @@ export class AutocompleteComponent<T> implements OnInit {
   onFilter = output<string | null>();
   onSelect = output<T>();
 
-  public currentSuggestion = signal<string | undefined>(undefined);
+  public currentSuggestion = model<string | undefined>(undefined);
   public bankFilterCtrl = new FormControl<string>('');
   public filteredBanks = new ReplaySubject<string[]>(1);
   public state = signal<'closed' | 'open'>('closed');

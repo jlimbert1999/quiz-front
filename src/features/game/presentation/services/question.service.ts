@@ -12,11 +12,11 @@ export class QuestionService {
 
   constructor() {}
 
-  createQuestion(form: Object) {
+  create(form: Object) {
     return this.http.post<questionResponse>(this.url, form);
   }
 
-  updateQeustion(id: string, form: Object) {
+  update(id: string, form: Object) {
     return this.http.patch<questionResponse>(`${this.url}/${id}`, form);
   }
 

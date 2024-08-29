@@ -1,7 +1,6 @@
 <hlm-dialog-header>
   <h3 hlmDialogTitle>{{ question ? "Edicion" : "Creacion" }} Pregunta</h3>
 </hlm-dialog-header>
-
 <form [formGroup]="questionForm" class="sm:w-[600px]">
   <hlm-tabs tab="question_tab">
     <header class="flex justify-between align-baseline">
@@ -27,6 +26,7 @@
         </div>
         <div>
           <autocomplete
+            [currentSuggestion]="questionForm.get('group')?.value"
             [options]="groups()"
             (onFilter)="onFilterGroup($event)"
             placeholder="Buscar area"
@@ -41,19 +41,13 @@
             (change)="onSelectQuestionImage($event)"
           />
         </div>
-        @if(previewImages().question){
-        <div class="col-span-2">
-          <section class="w-full" hlmCard>
-            <div hlmCardHeader>
-              <h4 hlmCardTitle>Imagen</h4>
-            </div>
-            <div hlmCardContent>
-              <img [src]="previewImages().question" alt="image question" />
-            </div>
-            <div hlmCardFooter class="p-3">
-              <button hlmBtn variant="ghost">Remover</button>
-            </div>
-          </section>
+        @if(selectedFiles().question.preview){
+        <div class="col-span-2 flex justify-center">
+          <img
+            [src]="selectedFiles().question.preview"
+            class="h-48"
+            alt="image question"
+          />
         </div>
         }
       </div>
@@ -71,14 +65,14 @@
       >
         <div *ngFor="let control of options.controls; let i = index">
           <div [formGroupName]="i">
-            <div class="flex items-center space-x-2">
+            <div class="flex items-center space-x-4">
               <label class="flex items-center" hlmLabel>
                 <hlm-checkbox formControlName="isCorrect" />
               </label>
               <div class="space-y-2 grow">
                 <input
                   aria-label="Texto"
-                  formControlName="imageUrl"
+                  formControlName="text"
                   class="w-full"
                   hlmInput
                   type="text"
@@ -91,9 +85,6 @@
                   accept="image/png, image/gif, image/jpeg"
                   (change)="onSelectOptionImage($event, i)"
                 />
-                <div class="h-24">
-                  <img [src]="control.get('imageUrl')?.value" alt="">
-                </div>
               </div>
               <button
                 hlmBtn
@@ -104,6 +95,15 @@
                 <hlm-icon size="sm" name="lucideTrash" />
               </button>
             </div>
+            @if(selectedFiles().options[i].preview){
+            <div class="flex justify-center mt-4">
+              <img
+                [src]="selectedFiles().options[i].preview"
+                class="h-48"
+                alt="Option image"
+              />
+            </div>
+            }
           </div>
         </div>
         @if(options.length===0){<span class="px-2">Sin opciones</span>}

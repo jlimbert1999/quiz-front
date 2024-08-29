@@ -27,6 +27,7 @@ import {
 
 import { QuestionService, TransmisionService } from '../../services';
 import { MatchService } from '../../services/match.service';
+import { ClausePipe } from '../../pipes/clause.pipe';
 
 @Component({
   selector: 'app-control',
@@ -44,6 +45,7 @@ import { MatchService } from '../../services/match.service';
     HlmCardDescriptionDirective,
     HlmCardContentDirective,
     HlmIconComponent,
+    ClausePipe
   ],
   templateUrl: './control.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

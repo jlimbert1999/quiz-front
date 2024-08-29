@@ -9,14 +9,15 @@ import { PlayComponent } from '../features/game/presentation/pages/play/play.com
 import { gameGuard } from '../features/game/presentation/guards/game.guard';
 
 export const routes: Routes = [
-  { path: '', component: HomeComponent },
+  { path: 'main', component: HomeComponent },
+  { path: 'questions', component: QuestionsComponent },
   {
     path: 'settings',
     component: SettingsComponent,
     children: [
-      // { path: '', redirectTo: 'matches' },
       { path: 'matches', component: MatchesComponent },
-      { path: 'questions', component: QuestionsComponent },
+
+      { path: '', redirectTo: 'questions', pathMatch: 'full' },
     ],
   },
   { path: 'menu', component: MainMenuComponent },

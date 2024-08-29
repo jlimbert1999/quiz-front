@@ -19,7 +19,7 @@
 </div> -->
 
 <div class="flex flex-col justify-between gap-4 sm:flex-row">
-  <input hlmInput class="w-full md:w-80" placeholder="Buscar pregunta" />
+  <!-- <input hlmInput class="w-full md:w-80" placeholder="Buscar pregunta" /> -->
   <div class="space-x-2">
     <button hlmBtn size="icon" variant="outline" (click)="create()">
       <hlm-icon size="sm" name="lucidePlus" />
@@ -53,6 +53,10 @@
         <hlm-icon size="sm" name="lucidePencil" />
       </button>
     </hlm-td>
+  </hlm-trow>
+  } @empty {
+  <hlm-trow>
+    <hlm-td truncate class="w-full">Sin resultados</hlm-td>
   </hlm-trow>
   }
 </hlm-table>
