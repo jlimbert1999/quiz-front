@@ -45,6 +45,34 @@ export class TransmisionService {
     });
   }
 
+  showwinner(gameId: string) {
+    this.socket.emit('winner', gameId);
+  }
+
+  listenWinner(): Observable<void> {
+    return new Observable((observable) => {
+      this.socket.on('show-winner', () => {
+        observable.next();
+      });
+    });
+  }
+
+  listenScore1() {
+    return new Observable<number>((observable) => {
+      this.socket.on('score1', (value: number) => {
+        observable.next(value);
+      });
+    });
+  }
+
+  listenScore2() {
+    return new Observable<number>((observable) => {
+      this.socket.on('score2', (value: number) => {
+        observable.next(value);
+      });
+    });
+  }
+
   disconnect() {
     if (this.socket) {
       this.socket.removeAllListeners();

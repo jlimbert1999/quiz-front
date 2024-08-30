@@ -15,7 +15,7 @@ import { HlmIconComponent, provideIcons } from '@spartan-ng/ui-icon-helm';
 import { HlmButtonDirective } from '@spartan-ng/ui-button-helm';
 import { BrnSelectImports } from '@spartan-ng/ui-select-brain';
 import { HlmSelectImports } from '@spartan-ng/ui-select-helm';
-import { lucidePlus } from '@ng-icons/lucide';
+import { lucideMinus, lucidePlus } from '@ng-icons/lucide';
 
 import {
   HlmCardDirective,
@@ -25,9 +25,14 @@ import {
   HlmCardContentDirective,
 } from '@spartan-ng/ui-card-helm';
 
-import { QuestionService, TransmisionService } from '../../services';
+import {
+  GameService,
+  QuestionService,
+  TransmisionService,
+} from '../../services';
 import { MatchService } from '../../services/match.service';
 import { ClausePipe } from '../../pipes/clause.pipe';
+import { HlmInputDirective } from '@spartan-ng/ui-input-helm';
 
 @Component({
   selector: 'app-control',
@@ -45,17 +50,19 @@ import { ClausePipe } from '../../pipes/clause.pipe';
     HlmCardDescriptionDirective,
     HlmCardContentDirective,
     HlmIconComponent,
-    ClausePipe
+    ClausePipe,
+    HlmInputDirective,
   ],
   templateUrl: './control.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [provideIcons({ lucidePlus })],
+  providers: [provideIcons({ lucidePlus, lucideMinus })],
 })
 export class ControlComponent {
   private destroyRef = inject(DestroyRef);
   private questionService = inject(QuestionService);
   private matchService = inject(MatchService);
   private transmisionService = inject(TransmisionService);
+  private gameService = inject(GameService);
 
   currentGroup = signal<string>('');
   groups = toSignal(this.questionService.getGroups(), { initialValue: [] });
@@ -67,6 +74,8 @@ export class ControlComponent {
   selectedIndex = signal<number | null>(null);
 
   readonly letters = ['a', 'b', 'c', 'd', 'e', 'f'];
+
+  incrementIn = signal<number>(10);
 
   constructor() {}
 
@@ -96,5 +105,59 @@ export class ControlComponent {
     this.isAnswered.set(true);
     this.selectedIndex.set(index);
     this.matchService.answerQuestion(this.match()._id, index).subscribe();
+  }
+
+  addScorePlayer1() {
+    this.matchService
+      .score1(this.match()._id, this.incrementIn())
+      .subscribe(({ score }) => {
+        this.match.update((values) => {
+          values.player1.score = score;
+          return { ...values };
+        });
+      });
+  }
+
+  addScorePlayer2() {
+    this.matchService
+      .score2(this.match()._id, this.incrementIn())
+      .subscribe(({ score }) => {
+        this.match.update((values) => {
+          values.player2.score = score;
+          return { ...values };
+        });
+      });
+  }
+
+  removeScorePlayer1() {
+    if (this.match().player1.score <= 0) {
+      return;
+    }
+    this.matchService
+      .score1(this.match()._id, -this.incrementIn())
+      .subscribe(({ score }) => {
+        this.match.update((values) => {
+          values.player1.score = score;
+          return { ...values };
+        });
+      });
+  }
+
+  removeScorePlayer2() {
+    if (this.match().player2.score <= 0) {
+      return;
+    }
+    this.matchService
+      .score2(this.match()._id, -this.incrementIn())
+      .subscribe(({ score }) => {
+        this.match.update((values) => {
+          values.player2.score = score;
+          return { ...values };
+        });
+      });
+  }
+
+  winner() {
+    this.transmisionService.showwinner(this.match()._id);
   }
 }

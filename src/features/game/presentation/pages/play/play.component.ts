@@ -12,6 +12,7 @@ import { questionResponse } from '../../../infrastructure';
 import { TransmisionService, MatchService } from '../../services';
 import { ClausePipe } from '../../pipes/clause.pipe';
 import { interval, Subscription } from 'rxjs';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-play',
@@ -54,6 +55,7 @@ export class PlayComponent implements OnInit {
   private transmisionService = inject(TransmisionService);
   private matchService = inject(MatchService);
   private timerSubscription?: Subscription;
+  private router = inject(Router);
 
   match = signal(this.matchService.currentMatch()!);
 
@@ -64,14 +66,6 @@ export class PlayComponent implements OnInit {
   isOptionsDisplayed = signal<boolean>(false);
   selectedIndex = signal<number | null>(null);
   remainingTime = signal<number>(60);
-  confetti = Array.from({ length: 100 }, () => ({
-    style: {
-      left: Math.random() * 100 + '%',
-      top: Math.random() * -100 + '%',
-      transform: `rotate(${Math.random() * 360}deg)`,
-      fontSize: Math.random() * 2 + 1 + 'rem',
-    },
-  }));
 
   startTimer() {
     this.timerSubscription = interval(1000).subscribe(() => {
@@ -92,6 +86,9 @@ export class PlayComponent implements OnInit {
     this._listenNextQuestion();
     this._listenDisplayOptions();
     this._listenAnswerQuestion();
+    this._listenScore1();
+    this._listenScore2();
+    this.lisntewWinner()
   }
 
   text = signal<string>('Esperando');
@@ -99,12 +96,14 @@ export class PlayComponent implements OnInit {
   ngOnInit(): void {}
 
   private _listenNextQuestion() {
+    this.stopTimer();
     this.transmisionService
       .listenNextQuestion()
       .pipe(takeUntilDestroyed())
       .subscribe((question) => {
         this.isOptionsDisplayed.set(false);
         this.selectedIndex.set(null);
+        this.remainingTime.set(60);
         this.match.update((values) => ({
           ...values,
           currentQuestion: question,
@@ -130,6 +129,30 @@ export class PlayComponent implements OnInit {
         this.stopTimer();
         this.selectedIndex.set(index);
       });
+  }
+
+  private _listenScore1() {
+    this.transmisionService.listenScore1().subscribe((score) => {
+      this.match.update((values) => {
+        values.player1.score = score;
+        return { ...values };
+      });
+    });
+  }
+
+  private lisntewWinner() {
+    this.transmisionService.listenWinner().subscribe(() => {
+      this.router.navigateByUrl('//game/winner');
+    });
+  }
+
+  private _listenScore2() {
+    this.transmisionService.listenScore2().subscribe((score) => {
+      this.match.update((values) => {
+        values.player2.score = score;
+        return { ...values };
+      });
+    });
   }
 
   esOpcionPequena(opcion: any): boolean {

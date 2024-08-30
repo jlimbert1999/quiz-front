@@ -7,6 +7,7 @@ import { QuestionsComponent } from '../features/game/presentation/pages/settings
 import { ControlComponent } from '../features/game/presentation/pages/control/control.component';
 import { PlayComponent } from '../features/game/presentation/pages/play/play.component';
 import { gameGuard } from '../features/game/presentation/guards/game.guard';
+import { WinerComponent } from '../features/game/winer/winer.component';
 
 export const routes: Routes = [
   { path: 'main', component: HomeComponent },
@@ -20,6 +21,8 @@ export const routes: Routes = [
       { path: '', redirectTo: 'questions', pathMatch: 'full' },
     ],
   },
+
+  { path: '', redirectTo: 'menu', pathMatch: 'full' },
   { path: 'menu', component: MainMenuComponent },
   {
     path: 'game',
@@ -27,6 +30,8 @@ export const routes: Routes = [
     children: [
       { path: 'control', component: ControlComponent },
       { path: 'play', component: PlayComponent },
+      { path: 'winner', component: WinerComponent },
     ],
   },
+  { path: '**', component: MainMenuComponent },
 ];

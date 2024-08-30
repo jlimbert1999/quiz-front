@@ -1,68 +1,50 @@
-<!-- 
-<div class="flex flex-col justify-between gap-4 sm:flex-row">
-  <input
-    hlmInput
-    class="w-full md:w-80"
-    placeholder="Filter emails..."
-   
-  />
-
-  <button hlmBtn variant="outline" align="end" [brnMenuTriggerFor]="menu">
-    Columns
-    <hlm-icon name="lucideChevronDown" class="ml-2" size="sm" />
-  </button>
-  <ng-template #menu>
-    <hlm-menu class="w-32">
-      
-    </hlm-menu>
-  </ng-template>
-</div> -->
-
-<div class="flex flex-col justify-between gap-4 sm:flex-row">
-  <!-- <input hlmInput class="w-full md:w-80" placeholder="Buscar pregunta" /> -->
-  <div class="space-x-2">
-    <button hlmBtn size="icon" variant="outline" (click)="create()">
-      <hlm-icon size="sm" name="lucidePlus" />
-    </button>
-    <button hlmBtn size="icon" variant="outline" (click)="loadExcelFile()">
-      <hlm-icon size="sm" name="lucideUpload" />
-    </button>
-  </div>
-</div>
-
-<hlm-table class="w-full mt-4 block rounded-md border">
-  <hlm-trow class="hidden sm:flex">
-    <hlm-th class="w-72">Area</hlm-th>
-    <hlm-th class="flex-1">Pregunta</hlm-th>
-    <hlm-th class="w-40">Estado</hlm-th>
-    <hlm-th class="w-16"></hlm-th>
-  </hlm-trow>
-  @for (element of datasource(); track $index) {
-  <hlm-trow class="flex flex-col sm:flex-row">
-    <hlm-td class="w-full sm:w-72">{{ element.group }}</hlm-td>
-    <hlm-td class="flex-1">{{ element.text }}</hlm-td>
-    <hlm-td class="w-40">
-      @if(element.isActive){
-      <div hlmBadge variant="secondary">activo</div>
-      } @else {
-      <div hlmBadge variant="destructive">inactivo</div>
-      }
-    </hlm-td>
-    <hlm-td class="w-16 p-0">
-      <button align="end" hlmBtn variant="ghost" (click)="update(element)">
-        <hlm-icon size="sm" name="lucidePencil" />
+<div class="p-2 sm:p-4">
+  <div class="flex flex-col justify-between gap-4 sm:flex-row">
+    <!-- <input hlmInput class="w-full md:w-80" placeholder="Buscar pregunta" /> -->
+    <div class="space-x-2">
+      <button hlmBtn size="icon" variant="outline" (click)="create()">
+        <hlm-icon size="sm" name="lucidePlus" />
       </button>
-    </hlm-td>
-  </hlm-trow>
-  } @empty {
-  <hlm-trow>
-    <hlm-td truncate class="w-full">Sin resultados</hlm-td>
-  </hlm-trow>
-  }
-</hlm-table>
+      <button hlmBtn size="icon" variant="outline" (click)="loadExcelFile()">
+        <hlm-icon size="sm" name="lucideUpload" />
+      </button>
+    </div>
+  </div>
 
-<paginator
-  [length]="datasize()"
-  [limit]="limit()"
-  (onPageChange)="changepage($event)"
-/>
+  <hlm-table class="w-full mt-4 block rounded-md border">
+    <hlm-trow class="hidden sm:flex">
+      <hlm-th class="w-72">Area</hlm-th>
+      <hlm-th class="flex-1">Pregunta</hlm-th>
+      <hlm-th class="w-40">Estado</hlm-th>
+      <hlm-th class="w-16"></hlm-th>
+    </hlm-trow>
+    @for (element of datasource(); track $index) {
+    <hlm-trow class="flex flex-col sm:flex-row">
+      <hlm-td class="w-full sm:w-72">{{ element.group }}</hlm-td>
+      <hlm-td class="flex-1">{{ element.text }}</hlm-td>
+      <hlm-td class="w-40">
+        @if(element.isActive){
+        <div hlmBadge variant="secondary">activo</div>
+        } @else {
+        <div hlmBadge variant="destructive">inactivo</div>
+        }
+      </hlm-td>
+      <hlm-td class="w-16 p-0">
+        <button align="end" hlmBtn variant="ghost" (click)="update(element)">
+          <hlm-icon size="sm" name="lucidePencil" />
+        </button>
+      </hlm-td>
+    </hlm-trow>
+    } @empty {
+    <hlm-trow>
+      <hlm-td truncate class="w-full">Sin resultados</hlm-td>
+    </hlm-trow>
+    }
+  </hlm-table>
+
+  <paginator
+    [length]="datasize()"
+    [limit]="limit()"
+    (onPageChange)="changepage($event)"
+  />
+</div>

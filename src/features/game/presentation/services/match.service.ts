@@ -24,6 +24,18 @@ export class MatchService {
     );
   }
 
+  score1(gameId: string, value: number) {
+    return this.http.post<{ score: number }>(`${this.url}/score1/${gameId}`, {
+      score: value,
+    });
+  }
+
+  score2(gameId: string, value: number) {
+    return this.http.post<{ score: number }>(`${this.url}/score2/${gameId}`, {
+      score: value,
+    });
+  }
+
   getNextQuestion(gameId: string, group: string) {
     return this.http.get<questionResponse>(
       `${this.url}/next/${gameId}/${group}`

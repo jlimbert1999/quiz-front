@@ -1,4 +1,70 @@
 <div class="h-screen flex flex-col p-2 sm:p-8 space-y-8">
+  <div class="flex justify-between items-center px-4 py-2">
+    <div class="flex items-center flex-col space-y-4">
+      <div>
+        <p class="text-xl font-semibold">{{ match().player1.name }}</p>
+        <p class="text-md text-gray-600">
+          Puntaje: {{ match().player1.score }}
+        </p>
+      </div>
+      <div class="space-x-4">
+        <button
+          hlmBtn
+          size="icon"
+          variant="outline"
+          (click)="removeScorePlayer1()"
+        >
+          <hlm-icon size="sm" name="lucideMinus" />
+        </button>
+        <button
+          hlmBtn
+          size="icon"
+          variant="outline"
+          (click)="addScorePlayer1()"
+        >
+          <hlm-icon size="sm" name="lucidePlus" />
+        </button>
+      </div>
+    </div>
+    <div class="flex items-center flex-col space-y-4">
+      <div>
+        <p class="text-xl font-semibold">{{ match().player2.name }}</p>
+        <p class="text-md text-gray-600">
+          Puntaje: {{ match().player2.score }}
+        </p>
+      </div>
+      <div class="space-x-4">
+        <button
+          hlmBtn
+          size="icon"
+          variant="outline"
+          (click)="removeScorePlayer2()"
+        >
+          <hlm-icon size="sm" name="lucideMinus" />
+        </button>
+        <button
+          hlmBtn
+          size="icon"
+          variant="outline"
+          (click)="addScorePlayer2()"
+        >
+          <hlm-icon size="sm" name="lucidePlus" />
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="flex justify-center space-x-4 items-center">
+    <p>Incrementar en:</p>
+    <input
+      class="w-20"
+      hlmInput
+      [(ngModel)]="incrementIn"
+      placeholder="Incremena"
+      [min]="0"
+      type="number"
+    />
+  </div>
+
   <div class="flex justify-center">
     <brn-select
       class="inline-block"
@@ -23,7 +89,7 @@
     <button hlmBtn [disabled]="isOptionsDisplayed()" (click)="showOptions()">
       Mostrar
     </button>
-    <button hlmBtn variant="destructive">Terminar</button>
+    <button hlmBtn variant="destructive" (click)="winner()">Terminar</button>
   </div>
 
   <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-4xl space-y-4">
