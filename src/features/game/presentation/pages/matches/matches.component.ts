@@ -15,6 +15,7 @@ import {
   lucideLayoutDashboard,
   lucidePencil,
   lucidePlay,
+  lucidePlus,
   lucideSettings,
   lucideSettings2,
 } from '@ng-icons/lucide';
@@ -32,7 +33,7 @@ import { MatchService } from '../../services/match.service';
 import { MatchComponent } from './match/match.component';
 
 @Component({
-  selector: 'app-main-menu',
+  selector: 'app-matches',
   standalone: true,
   imports: [
     RouterModule,
@@ -43,11 +44,11 @@ import { MatchComponent } from './match/match.component';
     HlmTooltipTriggerDirective,
     BrnTooltipContentDirective,
   ],
-  templateUrl: './main-menu.component.html',
+  templateUrl: './matches.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [provideIcons({ lucidePlay, lucidePencil, lucideSettings2 })],
+  providers: [provideIcons({ lucidePlay, lucideSettings2, lucidePlus })],
 })
-export class MainMenuComponent implements OnInit {
+export class MatchesComponent implements OnInit {
   private gameService = inject(GameService);
   private matchService = inject(MatchService);
   private router = inject(Router);
@@ -56,7 +57,8 @@ export class MainMenuComponent implements OnInit {
   matches = signal<gameResponse[]>([]);
 
   ngOnInit(): void {
-    this.gameService.getPendings().subscribe((data) => {
+    this.matchService.getPendings().subscribe((data) => {
+      console.log(data);
       this.matches.set(data);
     });
   }
@@ -68,11 +70,11 @@ export class MainMenuComponent implements OnInit {
 
   create(): void {
     const dialogRef = this._hlmDialogService.open(MatchComponent, {
-      contentClass: 'sm:min-w-[750px]',
+      contentClass: 'sm:min-w-[550px]',
     });
-    dialogRef.closed$.subscribe((game?: gameResponse) => {
-      if (!game) return;
-      this.matches.update((values) => [game, ...values]);
+    dialogRef.closed$.subscribe((match?: gameResponse) => {
+      if (!match) return;
+      this.matches.update((values) => [match, ...values]);
     });
   }
 }

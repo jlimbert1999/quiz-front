@@ -15,6 +15,14 @@ export class MatchService {
 
   constructor() {}
 
+  create(form: Object) {
+    return this.http.post<gameResponse>(this.url, form);
+  }
+
+  getPendings() {
+    return this.http.get<gameResponse[]>(this.url);
+  }
+
   checkCurrentMatch(): Observable<boolean> {
     const matchId = localStorage.getItem('match');
     if (!matchId) return of(false);
