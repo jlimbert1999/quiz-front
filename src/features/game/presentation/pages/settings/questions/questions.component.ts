@@ -177,16 +177,16 @@ export class QuestionsComponent implements OnInit {
         wb.SheetNames.forEach((sheet) => {
           const data = utils.sheet_to_json<any>(wb.Sheets[sheet]);
           data.forEach((el) => {
-            if (el['PREGUNTA']) {
+            if (el['PREGUNTA'] && el['PREGUNTA'].trim() !== '') {
               uploadData.push({
                 text: el['PREGUNTA'],
                 group: sheet,
                 options: [],
               });
             } else {
-              if (el['OPCIONES']) {
+              if (el['INCISO']) {
                 uploadData.at(-1)?.options.push({
-                  text: el['OPCIONES'],
+                  text: el['OPCIONES'] ?? '',
                   isCorrect: el['RESPUESTA'] ? true : false,
                 });
               }

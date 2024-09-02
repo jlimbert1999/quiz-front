@@ -21,16 +21,16 @@ export const routes: Routes = [
     ],
   },
 
-  { path: '', redirectTo: 'menu', pathMatch: 'full' },
   { path: 'menu', component: MatchesComponent },
   {
     path: 'game',
     canActivate: [gameGuard],
     children: [
-      { path: 'control', component: ControlComponent },
       { path: 'play', component: PlayComponent },
+      { path: 'control', component: ControlComponent },
       { path: 'winner', component: WinerComponent },
     ],
   },
   { path: '**', component: MatchesComponent },
+  { path: '', redirectTo: 'menu', pathMatch: 'full' },
 ];

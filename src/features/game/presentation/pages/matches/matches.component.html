@@ -15,10 +15,20 @@
           {{ match.player1.name }} vs {{ match.player2.name }}
         </div>
         <div class="flex space-x-2">
-          <button hlmBtn size="icon" variant="outline">
+          <button
+            hlmBtn
+            size="icon"
+            variant="outline"
+            (click)="start(match, 'control')"
+          >
             <hlm-icon size="sm" name="lucideSettings2" />
           </button>
-          <button hlmBtn size="icon" variant="outline">
+          <button
+            hlmBtn
+            size="icon"
+            variant="outline"
+            (click)="start(match, 'play')"
+          >
             <hlm-icon size="sm" name="lucidePlay" />
           </button>
         </div>

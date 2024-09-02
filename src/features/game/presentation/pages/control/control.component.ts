@@ -14,6 +14,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { HlmIconComponent, provideIcons } from '@spartan-ng/ui-icon-helm';
 import { HlmButtonDirective } from '@spartan-ng/ui-button-helm';
 import { BrnSelectImports } from '@spartan-ng/ui-select-brain';
+import { HlmInputDirective } from '@spartan-ng/ui-input-helm';
 import { HlmSelectImports } from '@spartan-ng/ui-select-helm';
 import { lucideMinus, lucidePlus } from '@ng-icons/lucide';
 
@@ -32,7 +33,6 @@ import {
 } from '../../services';
 import { MatchService } from '../../services/match.service';
 import { ClausePipe } from '../../pipes/clause.pipe';
-import { HlmInputDirective } from '@spartan-ng/ui-input-helm';
 
 @Component({
   selector: 'app-control',
@@ -88,6 +88,7 @@ export class ControlComponent {
     this.matchService
       .getNextQuestion(this.match()._id, this.currentGroup())
       .subscribe((question) => {
+        console.log(question);
         this.match.update((values) => ({
           ...values,
           currentQuestion: question,

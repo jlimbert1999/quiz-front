@@ -1,4 +1,4 @@
-<div class="h-screen flex flex-col p-2 sm:p-8 space-y-8">
+<!-- <div class="h-screen flex flex-col p-2 sm:p-8 space-y-8">
   <div class="flex justify-between items-center px-4 py-2">
     <div class="flex items-center flex-col space-y-4">
       <div>
@@ -66,20 +66,20 @@
   </div>
 
   <div class="flex justify-center">
-    <brn-select
-      class="inline-block"
+    <hlm-select
+      scrollable="true"
       placeholder="Seleccione el area"
       [(ngModel)]="currentGroup"
     >
       <hlm-select-trigger class="w-96">
         <hlm-select-value />
       </hlm-select-trigger>
-      <hlm-select-content>
+      <hlm-select-content class="max-h-56">
         @for (group of groups(); track $index) {
         <hlm-option [value]="group">{{ group }}</hlm-option>
         }
       </hlm-select-content>
-    </brn-select>
+    </hlm-select>
   </div>
 
   <div class="flex justify-center space-x-4">
@@ -92,39 +92,96 @@
     <button hlmBtn variant="destructive" (click)="winner()">Terminar</button>
   </div>
 
-  <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-4xl space-y-4">
-    @if(match().currentQuestion) {
-    <p class="text-2xl text-center font-bold">
-      {{ match().currentQuestion?.text }}
-    </p>
-    @if(isOptionsDisplayed()){
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      @for (item of match().currentQuestion?.options; track $index) {
-      <div
-        class="cursor-pointer border rounded-lg shadow p-4 flex flex-col items-center"
-        [ngClass]="{
-              'pointer-events-none':isAnswered(),
-              'hover:bg-slate-200':!isAnswered(),
-              'bg-green-600 text-white': item.isCorrect && selectedIndex() === $index,
-              'bg-red-600 text-white': !item.isCorrect && selectedIndex() === $index,
-            }"
-        (click)="answer($index)"
-      >
-        <!-- @if(item.imageUrl){
-        <div class="mb-4">
-          <img [src]="item.imageUrl" class="max-w-64" alt="Option image" />
-        </div>
-        } -->
+ 
+</div> -->
 
+<div class="h-screen">
+  <div class="flex flex-column h-full">
+    <div class="grow border rounded m-4 p-4">
+      @if(match().currentQuestion) {
+      <div class="flex flex-col justify-center items-center space-y-4">
         <div>
-          <p class="text-lg font-semibold text-center">
-            <span class="font-bold">{{ $index | clause }})</span>
-            {{ item.text }}
+          <p class="text-2xl font-bold">
+            {{ match().currentQuestion?.text }}
           </p>
         </div>
+        @if (match().currentQuestion?.imageUrl) {
+        <div>
+          <img
+            [src]="match().currentQuestion?.imageUrl"
+            class="w-[300px]"
+            alt="Option image"
+          />
+        </div>
+        }
       </div>
-      }
+      @if(isOptionsDisplayed()){
+      <div class="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-6">
+        @for (item of match().currentQuestion?.options; track $index) {
+        <div
+          class="cursor-pointer border rounded-lg shadow p-4 flex flex-col items-center"
+          [ngClass]="{
+                    'bg-green-600 text-white':isAnswered() && item.isCorrect,
+                    'pointer-events-none':isAnswered(),
+                    'hover:bg-slate-200':!isAnswered(),
+                    'bg-red-600 text-white': !item.isCorrect && selectedIndex() === $index,
+                  }"
+          (click)="answer($index)"
+        >
+          @if(item.imageUrl){
+          <div class="mb-4">
+            <img [src]="item.imageUrl" class="w-[300px]" alt="Option image" />
+          </div>
+          }
+          <div>
+            <p class="text-lg font-semibold text-center">
+              <span class="font-bold text-2xl">{{ $index | clause }})</span>
+              {{ item.text }}
+            </p>
+          </div>
+        </div>
+        }
+      </div>
+      } }
     </div>
-    } }
+    <div class="w-1/4 p-2 border">
+      <div class="flex flex-col space-y-4">
+        <div>
+          <hlm-select
+            scrollable="true"
+            placeholder="Seleccione el area"
+            [(ngModel)]="currentGroup"
+          >
+            <hlm-select-trigger class="w-full">
+              <hlm-select-value />
+            </hlm-select-trigger>
+            <hlm-select-content class="max-h-56">
+              @for (group of groups(); track $index) {
+              <hlm-option [value]="group">{{ group }}</hlm-option>
+              }
+            </hlm-select-content>
+          </hlm-select>
+        </div>
+        <div class="flex justify-center space-x-2">
+          <button
+            hlmBtn
+            [disabled]="!currentGroup()"
+            (click)="getRandomQuestion()"
+          >
+            Siguiente
+          </button>
+          <button
+            hlmBtn
+            [disabled]="isOptionsDisplayed()"
+            (click)="showOptions()"
+          >
+            Mostrar
+          </button>
+          <button hlmBtn variant="destructive" (click)="winner()">
+            Terminar
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </div>

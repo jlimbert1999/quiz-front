@@ -8,27 +8,18 @@ import {
 } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 
-import { provideIcons } from '@ng-icons/core';
-import { HlmIconComponent } from '@spartan-ng/ui-icon-helm';
-import { HlmButtonModule } from '@spartan-ng/ui-button-helm';
-import {
-  lucideLayoutDashboard,
-  lucidePencil,
-  lucidePlay,
-  lucidePlus,
-  lucideSettings,
-  lucideSettings2,
-} from '@ng-icons/lucide';
-import { BrnTooltipContentDirective } from '@spartan-ng/ui-tooltip-brain';
-import { HlmDialogService } from '@spartan-ng/ui-dialog-helm';
-
 import {
   HlmTooltipComponent,
   HlmTooltipTriggerDirective,
 } from '@spartan-ng/ui-tooltip-helm';
+import { lucidePlay, lucidePlus, lucideSettings2 } from '@ng-icons/lucide';
+import { BrnTooltipContentDirective } from '@spartan-ng/ui-tooltip-brain';
+import { HlmDialogService } from '@spartan-ng/ui-dialog-helm';
+import { HlmButtonModule } from '@spartan-ng/ui-button-helm';
+import { HlmIconComponent } from '@spartan-ng/ui-icon-helm';
+import { provideIcons } from '@ng-icons/core';
 
 import { gameResponse } from '../../../infrastructure';
-import { GameService } from '../../services';
 import { MatchService } from '../../services/match.service';
 import { MatchComponent } from './match/match.component';
 
@@ -49,7 +40,6 @@ import { MatchComponent } from './match/match.component';
   providers: [provideIcons({ lucidePlay, lucideSettings2, lucidePlus })],
 })
 export class MatchesComponent implements OnInit {
-  private gameService = inject(GameService);
   private matchService = inject(MatchService);
   private router = inject(Router);
   private readonly _hlmDialogService = inject(HlmDialogService);
@@ -58,14 +48,8 @@ export class MatchesComponent implements OnInit {
 
   ngOnInit(): void {
     this.matchService.getPendings().subscribe((data) => {
-      console.log(data);
       this.matches.set(data);
     });
-  }
-
-  startGame(game: gameResponse, route: string) {
-    localStorage.setItem('match', game._id);
-    this.router.navigateByUrl('/game/play');
   }
 
   create(): void {
@@ -76,5 +60,10 @@ export class MatchesComponent implements OnInit {
       if (!match) return;
       this.matches.update((values) => [match, ...values]);
     });
+  }
+
+  start(match: gameResponse, mode: 'play' | 'control') {
+    localStorage.setItem('match', match._id);
+    this.router.navigateByUrl(`/game/${mode}`);
   }
 }
