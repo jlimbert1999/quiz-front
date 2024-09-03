@@ -91,13 +91,41 @@
     </button>
     <button hlmBtn variant="destructive" (click)="winner()">Terminar</button>
   </div>
-
- 
 </div> -->
 
 <div class="h-screen">
   <div class="flex flex-column h-full">
     <div class="grow border rounded m-4 p-4">
+      <div class="flex justify-between">
+        <div>
+          <div class="flex items-center space-y-4">
+            <div>
+              <p class="text-xl font-semibold">{{ match().player1.name }}</p>
+              <p class="text-md text-gray-600">
+                Puntaje: {{ match().player1.score }}
+              </p>
+            </div>
+            <button
+              hlmBtn
+              size="icon"
+              variant="outline"
+              (click)="removeScorePlayer1()"
+            >
+              <hlm-icon size="sm" name="lucideMinus" />
+            </button>
+            <button
+              hlmBtn
+              size="icon"
+              variant="outline"
+              (click)="addScorePlayer1()"
+            >
+              <hlm-icon size="sm" name="lucidePlus" />
+            </button>
+          </div>
+        </div>
+        <div>60</div>
+        <div>03</div>
+      </div>
       @if(match().currentQuestion) {
       <div class="flex flex-col justify-center items-center space-y-4">
         <div>

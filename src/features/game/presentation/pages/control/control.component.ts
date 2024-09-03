@@ -2,9 +2,6 @@ import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
-  computed,
-  DestroyRef,
-  effect,
   inject,
   signal,
 } from '@angular/core';
@@ -58,22 +55,17 @@ import { ClausePipe } from '../../pipes/clause.pipe';
   providers: [provideIcons({ lucidePlus, lucideMinus })],
 })
 export class ControlComponent {
-  private destroyRef = inject(DestroyRef);
   private questionService = inject(QuestionService);
   private matchService = inject(MatchService);
   private transmisionService = inject(TransmisionService);
-  private gameService = inject(GameService);
 
   currentGroup = signal<string>('');
   groups = toSignal(this.questionService.getGroups(), { initialValue: [] });
-
   match = signal(this.matchService.currentMatch()!);
 
   isOptionsDisplayed = signal<boolean>(false);
   isAnswered = signal<boolean>(false);
   selectedIndex = signal<number | null>(null);
-
-  readonly letters = ['a', 'b', 'c', 'd', 'e', 'f'];
 
   incrementIn = signal<number>(10);
 
@@ -88,7 +80,6 @@ export class ControlComponent {
     this.matchService
       .getNextQuestion(this.match()._id, this.currentGroup())
       .subscribe((question) => {
-        console.log(question);
         this.match.update((values) => ({
           ...values,
           currentQuestion: question,

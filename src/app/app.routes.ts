@@ -20,7 +20,6 @@ export const routes: Routes = [
       { path: '', redirectTo: 'questions', pathMatch: 'full' },
     ],
   },
-
   { path: 'menu', component: MatchesComponent },
   {
     path: 'game',
