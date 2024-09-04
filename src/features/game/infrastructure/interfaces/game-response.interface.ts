@@ -6,6 +6,8 @@ export interface gameResponse {
   player1: playerResponse;
   player2: playerResponse;
   currentQuestion?: questionResponse;
+  timer: number;
+  incrementBy: number;
 }
 
 export interface playerResponse {

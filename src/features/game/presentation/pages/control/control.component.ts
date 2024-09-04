@@ -5,7 +5,12 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import {
+  FormBuilder,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 
 import { HlmIconComponent, provideIcons } from '@spartan-ng/ui-icon-helm';
@@ -23,13 +28,21 @@ import {
   HlmCardContentDirective,
 } from '@spartan-ng/ui-card-helm';
 
-import {
-  GameService,
-  QuestionService,
-  TransmisionService,
-} from '../../services';
+import { QuestionService, TransmisionService } from '../../services';
 import { MatchService } from '../../services/match.service';
 import { ClausePipe } from '../../pipes/clause.pipe';
+import {
+  BrnDialogTriggerDirective,
+  BrnDialogContentDirective,
+} from '@spartan-ng/ui-dialog-brain';
+import {
+  HlmDialogComponent,
+  HlmDialogContentComponent,
+  HlmDialogHeaderComponent,
+  HlmDialogFooterComponent,
+  HlmDialogTitleDirective,
+  HlmDialogDescriptionDirective,
+} from '@spartan-ng/ui-dialog-helm';
 
 @Component({
   selector: 'app-control',
@@ -37,6 +50,7 @@ import { ClausePipe } from '../../pipes/clause.pipe';
   imports: [
     CommonModule,
     FormsModule,
+    ReactiveFormsModule,
     BrnSelectImports,
     HlmSelectImports,
     HlmButtonDirective,
@@ -49,12 +63,22 @@ import { ClausePipe } from '../../pipes/clause.pipe';
     HlmIconComponent,
     ClausePipe,
     HlmInputDirective,
+
+    BrnDialogTriggerDirective,
+    BrnDialogContentDirective,
+    HlmDialogComponent,
+    HlmDialogContentComponent,
+    HlmDialogHeaderComponent,
+    HlmDialogFooterComponent,
+    HlmDialogTitleDirective,
+    HlmDialogDescriptionDirective,
   ],
   templateUrl: './control.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [provideIcons({ lucidePlus, lucideMinus })],
 })
 export class ControlComponent {
+  private formBuilder = inject(FormBuilder);
   private questionService = inject(QuestionService);
   private matchService = inject(MatchService);
   private transmisionService = inject(TransmisionService);
@@ -68,6 +92,15 @@ export class ControlComponent {
   selectedIndex = signal<number | null>(null);
 
   incrementIn = signal<number>(10);
+  timer = signal<number>(60);
+
+  matchConfigForm = this.formBuilder.group({
+    incrementBy: [
+      this.match().incrementBy,
+      [Validators.required, Validators.min(1)],
+    ],
+    timer: [this.match().timer, [Validators.required, Validators.min(1)]],
+  });
 
   constructor() {}
 
@@ -99,51 +132,16 @@ export class ControlComponent {
     this.matchService.answerQuestion(this.match()._id, index).subscribe();
   }
 
-  addScorePlayer1() {
+  updateScore(player: 'player1' | 'player2', operation: 'add' | 'remove') {
     this.matchService
-      .score1(this.match()._id, this.incrementIn())
+      .updateScore(this.match()._id, player, operation)
       .subscribe(({ score }) => {
         this.match.update((values) => {
-          values.player1.score = score;
-          return { ...values };
-        });
-      });
-  }
-
-  addScorePlayer2() {
-    this.matchService
-      .score2(this.match()._id, this.incrementIn())
-      .subscribe(({ score }) => {
-        this.match.update((values) => {
-          values.player2.score = score;
-          return { ...values };
-        });
-      });
-  }
-
-  removeScorePlayer1() {
-    if (this.match().player1.score <= 0) {
-      return;
-    }
-    this.matchService
-      .score1(this.match()._id, -this.incrementIn())
-      .subscribe(({ score }) => {
-        this.match.update((values) => {
-          values.player1.score = score;
-          return { ...values };
-        });
-      });
-  }
-
-  removeScorePlayer2() {
-    if (this.match().player2.score <= 0) {
-      return;
-    }
-    this.matchService
-      .score2(this.match()._id, -this.incrementIn())
-      .subscribe(({ score }) => {
-        this.match.update((values) => {
-          values.player2.score = score;
+          if (player === 'player1') {
+            values.player1.score = score;
+          } else {
+            values.player2.score = score;
+          }
           return { ...values };
         });
       });

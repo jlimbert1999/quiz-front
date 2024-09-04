@@ -32,6 +32,28 @@ export class MatchService {
     );
   }
 
+  updateScore(
+    gameId: string,
+    player: 'player1' | 'player2',
+    operation: 'add' | 'remove'
+  ) {
+    return this.http.post<{ score: number }>(`${this.url}/score/${gameId}`, {
+      player,
+      operation,
+    });
+  }
+
+  updateMatch(
+    gameId: string,
+    player: 'player1' | 'player2',
+    operation: 'add' | 'remove'
+  ) {
+    return this.http.post<{ score: number }>(`${this.url}/score/${gameId}`, {
+      player,
+      operation,
+    });
+  }
+
   score1(gameId: string, value: number) {
     return this.http.post<{ score: number }>(`${this.url}/score1/${gameId}`, {
       score: value,

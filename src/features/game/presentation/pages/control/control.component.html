@@ -1,115 +1,16 @@
-<!-- <div class="h-screen flex flex-col p-2 sm:p-8 space-y-8">
-  <div class="flex justify-between items-center px-4 py-2">
-    <div class="flex items-center flex-col space-y-4">
-      <div>
-        <p class="text-xl font-semibold">{{ match().player1.name }}</p>
-        <p class="text-md text-gray-600">
-          Puntaje: {{ match().player1.score }}
-        </p>
-      </div>
-      <div class="space-x-4">
-        <button
-          hlmBtn
-          size="icon"
-          variant="outline"
-          (click)="removeScorePlayer1()"
-        >
-          <hlm-icon size="sm" name="lucideMinus" />
-        </button>
-        <button
-          hlmBtn
-          size="icon"
-          variant="outline"
-          (click)="addScorePlayer1()"
-        >
-          <hlm-icon size="sm" name="lucidePlus" />
-        </button>
-      </div>
-    </div>
-    <div class="flex items-center flex-col space-y-4">
-      <div>
-        <p class="text-xl font-semibold">{{ match().player2.name }}</p>
-        <p class="text-md text-gray-600">
-          Puntaje: {{ match().player2.score }}
-        </p>
-      </div>
-      <div class="space-x-4">
-        <button
-          hlmBtn
-          size="icon"
-          variant="outline"
-          (click)="removeScorePlayer2()"
-        >
-          <hlm-icon size="sm" name="lucideMinus" />
-        </button>
-        <button
-          hlmBtn
-          size="icon"
-          variant="outline"
-          (click)="addScorePlayer2()"
-        >
-          <hlm-icon size="sm" name="lucidePlus" />
-        </button>
-      </div>
-    </div>
-  </div>
-  <div class="flex justify-center space-x-4 items-center">
-    <p>Incrementar en:</p>
-    <input
-      class="w-20"
-      hlmInput
-      [(ngModel)]="incrementIn"
-      placeholder="Incremena"
-      [min]="0"
-      type="number"
-    />
-  </div>
-
-  <div class="flex justify-center">
-    <hlm-select
-      scrollable="true"
-      placeholder="Seleccione el area"
-      [(ngModel)]="currentGroup"
-    >
-      <hlm-select-trigger class="w-96">
-        <hlm-select-value />
-      </hlm-select-trigger>
-      <hlm-select-content class="max-h-56">
-        @for (group of groups(); track $index) {
-        <hlm-option [value]="group">{{ group }}</hlm-option>
-        }
-      </hlm-select-content>
-    </hlm-select>
-  </div>
-
-  <div class="flex justify-center space-x-4">
-    <button hlmBtn [disabled]="!currentGroup()" (click)="getRandomQuestion()">
-      Siguiente
-    </button>
-    <button hlmBtn [disabled]="isOptionsDisplayed()" (click)="showOptions()">
-      Mostrar
-    </button>
-    <button hlmBtn variant="destructive" (click)="winner()">Terminar</button>
-  </div>
-</div> -->
-
 <div class="h-screen">
   <div class="flex flex-column h-full">
-    <div class="grow border rounded m-4 p-4">
-      <div class="flex justify-between">
+    <div class="grow border rounded m-4 p-4 overflow-y-scroll">
+      <div class="flex justify-between mb-2">
         <div>
-          <div class="flex items-center space-y-4">
-            <div>
-              <p class="text-xl font-semibold">{{ match().player1.name }}</p>
-              <p class="text-md text-gray-600">
-                Puntaje: {{ match().player1.score }}
-              </p>
-            </div>
+          <p>{{ match().player1.name }}</p>
+          <p>Puntaje: {{ match().player1.score }}</p>
+          <div class="space-x-2 mt-2">
             <button
               hlmBtn
               size="icon"
               variant="outline"
-              (click)="removeScorePlayer1()"
+              (click)="updateScore('player1', 'remove')"
             >
               <hlm-icon size="sm" name="lucideMinus" />
             </button>
@@ -117,14 +18,34 @@
               hlmBtn
               size="icon"
               variant="outline"
-              (click)="addScorePlayer1()"
+              (click)="updateScore('player1', 'add')"
             >
               <hlm-icon size="sm" name="lucidePlus" />
             </button>
           </div>
         </div>
-        <div>60</div>
-        <div>03</div>
+        <div>
+          <p>{{ match().player2.name }}</p>
+          <p>Puntaje: {{ match().player2.score }}</p>
+          <div class="space-x-2 mt-2">
+            <button
+              hlmBtn
+              size="icon"
+              variant="outline"
+              (click)="updateScore('player2', 'remove')"
+            >
+              <hlm-icon size="sm" name="lucideMinus" />
+            </button>
+            <button
+              hlmBtn
+              size="icon"
+              variant="outline"
+              (click)="updateScore('player2', 'add')"
+            >
+              <hlm-icon size="sm" name="lucidePlus" />
+            </button>
+          </div>
+        </div>
       </div>
       @if(match().currentQuestion) {
       <div class="flex flex-col justify-center items-center space-y-4">
@@ -147,7 +68,7 @@
       <div class="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-6">
         @for (item of match().currentQuestion?.options; track $index) {
         <div
-          class="cursor-pointer border rounded-lg shadow p-4 flex flex-col items-center"
+          class="cursor-pointer border rounded-lg p-4 flex flex-col items-center"
           [ngClass]="{
                     'bg-green-600 text-white':isAnswered() && item.isCorrect,
                     'pointer-events-none':isAnswered(),
@@ -162,8 +83,8 @@
           </div>
           }
           <div>
-            <p class="text-lg font-semibold text-center">
-              <span class="font-bold text-2xl">{{ $index | clause }})</span>
+            <p class="font-semibold text-center">
+              <span class="font-bold">{{ $index | clause }})</span>
               {{ item.text }}
             </p>
           </div>
@@ -172,8 +93,50 @@
       </div>
       } }
     </div>
-    <div class="w-1/4 p-2 border">
+    <div class="w-[400px] shrink-0 p-2">
       <div class="flex flex-col space-y-4">
+        <div class="text-center">
+          <hlm-dialog>
+            <button id="edit-profile" brnDialogTrigger hlmBtn>
+              Configurar
+            </button>
+            <hlm-dialog-content
+              class="sm:max-w-[400px]"
+              *brnDialogContent="let ctx"
+            >
+              <hlm-dialog-header>
+                <h3 hlmDialogTitle>Configuracion</h3>
+              </hlm-dialog-header>
+              <form [formGroup]="matchConfigForm">
+                <div class="py-4 grid gap-4">
+                  <div class="items-center grid grid-cols-4 gap-4">
+                    <label hlmLabel for="timer" class="text-right col-span-2">Cronometro</label>
+                    <input
+                      hlmInput
+                      id="timer"
+                      class="col-span-2"
+                      formControlName="timer"
+                    />
+                  </div>
+                  <div class="items-center grid grid-cols-4 gap-4">
+                    <label hlmLabel for="increment" class="text-right col-span-2"
+                      >Incrementar en</label
+                    >
+                    <input
+                      hlmInput
+                      id="increment"
+                      class="col-span-2"
+                      formControlName="incrementBy"
+                    />
+                  </div>
+                </div>
+              </form>
+              <hlm-dialog-footer>
+                <button hlmBtn type="submit">Save changes</button>
+              </hlm-dialog-footer>
+            </hlm-dialog-content>
+          </hlm-dialog>
+        </div>
         <div>
           <hlm-select
             scrollable="true"
@@ -190,7 +153,7 @@
             </hlm-select-content>
           </hlm-select>
         </div>
-        <div class="flex justify-center space-x-2">
+        <div class="flex justify-center gap-2 flex-wrap">
           <button
             hlmBtn
             [disabled]="!currentGroup()"
