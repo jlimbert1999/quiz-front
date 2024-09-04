@@ -5,6 +5,10 @@ import { Socket, io } from 'socket.io-client';
 import { environment } from '../../../../environments/environment';
 import { questionResponse } from '../../infrastructure';
 
+interface scoreProps {
+  score: number;
+  player: 'player1' | 'player2';
+}
 @Injectable({
   providedIn: 'root',
 })
@@ -57,18 +61,10 @@ export class TransmisionService {
     });
   }
 
-  listenScore1() {
-    return new Observable<number>((observable) => {
-      this.socket.on('score1', (value: number) => {
-        observable.next(value);
-      });
-    });
-  }
-
-  listenScore2() {
-    return new Observable<number>((observable) => {
-      this.socket.on('score2', (value: number) => {
-        observable.next(value);
+  listenScore() {
+    return new Observable<scoreProps>((observable) => {
+      this.socket.on('score', (data: scoreProps) => {
+        observable.next(data);
       });
     });
   }

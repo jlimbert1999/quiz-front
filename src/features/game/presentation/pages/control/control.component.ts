@@ -7,9 +7,10 @@ import {
 } from '@angular/core';
 import {
   FormBuilder,
+  FormGroup,
   FormsModule,
-  ReactiveFormsModule,
   Validators,
+  ReactiveFormsModule,
 } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 
@@ -91,10 +92,7 @@ export class ControlComponent {
   isAnswered = signal<boolean>(false);
   selectedIndex = signal<number | null>(null);
 
-  incrementIn = signal<number>(10);
-  timer = signal<number>(60);
-
-  matchConfigForm = this.formBuilder.group({
+  matchConfigForm: FormGroup = this.formBuilder.group({
     incrementBy: [
       this.match().incrementBy,
       [Validators.required, Validators.min(1)],
@@ -102,11 +100,8 @@ export class ControlComponent {
     timer: [this.match().timer, [Validators.required, Validators.min(1)]],
   });
 
-  constructor() {}
-
   getRandomQuestion(): void {
-    // if (this.currentGroup() === '' || !this.match().currentQuestion) return;
-
+    if (this.currentGroup() === '') return;
     this.isAnswered.set(false);
     this.selectedIndex.set(null);
     this.isOptionsDisplayed.set(false);
@@ -142,6 +137,18 @@ export class ControlComponent {
           } else {
             values.player2.score = score;
           }
+          return { ...values };
+        });
+      });
+  }
+
+  updateSettings() {
+    this.matchService
+      .updateSettings(this.match()._id, this.matchConfigForm.value)
+      .subscribe(({ timer, incrementBy }) => {
+        this.match.update((values) => {
+          values.incrementBy = incrementBy;
+          values.timer = timer;
           return { ...values };
         });
       });

@@ -107,10 +107,12 @@
               <hlm-dialog-header>
                 <h3 hlmDialogTitle>Configuracion</h3>
               </hlm-dialog-header>
-              <form [formGroup]="matchConfigForm">
+              <form [formGroup]="matchConfigForm" (ngSubmit)="updateSettings()">
                 <div class="py-4 grid gap-4">
                   <div class="items-center grid grid-cols-4 gap-4">
-                    <label hlmLabel for="timer" class="text-right col-span-2">Cronometro</label>
+                    <label hlmLabel for="timer" class="text-right col-span-2"
+                      >Cronometro</label
+                    >
                     <input
                       hlmInput
                       id="timer"
@@ -119,7 +121,10 @@
                     />
                   </div>
                   <div class="items-center grid grid-cols-4 gap-4">
-                    <label hlmLabel for="increment" class="text-right col-span-2"
+                    <label
+                      hlmLabel
+                      for="increment"
+                      class="text-right col-span-2"
                       >Incrementar en</label
                     >
                     <input
@@ -130,10 +135,10 @@
                     />
                   </div>
                 </div>
+                <hlm-dialog-footer>
+                  <button hlmBtn type="submit" [disabled]="matchConfigForm.invalid" (click)="ctx.close()">Guardar</button>
+                </hlm-dialog-footer>
               </form>
-              <hlm-dialog-footer>
-                <button hlmBtn type="submit">Save changes</button>
-              </hlm-dialog-footer>
             </hlm-dialog-content>
           </hlm-dialog>
         </div>

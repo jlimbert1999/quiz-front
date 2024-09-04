@@ -51,12 +51,12 @@
       [ngClass]="isOptionsDisplayed() ? 'w-1/2' : 'w-full'"
     >
       <div>
-        <!-- <img
+        <img
           src="ruta-a-la-imagen"
           alt="Imagen de la Pregunta"
-          class="mt-4 mx-auto max-w-full h-auto"
-          *ngIf="pregunta.imagen"
-        /> -->
+          class="mt-4 mx-auto max-w-[200px] h-auto"
+          *ngIf="match().currentQuestion?.imageUrl"
+        />
         <p class="mt-4 text-4xl text-center px-4">
           {{ match().currentQuestion?.text }}
         </p>
@@ -84,11 +84,11 @@
             'bg-red-600 text-white': !opcion.isCorrect && selectedIndex() === index,
           }"
         >
-          <!-- @if(opcion.imageUrl){
+          @if(opcion.imageUrl){
           <div class="mb-4">
-            <img [src]="opcion.imageUrl" class="max-w-64" alt="Option image" />
+            <img [src]="opcion.imageUrl" class="max-w-[200px]" alt="Option image" />
           </div>
-          } -->
+          }
           <p class="text-2xl text-center">
             <span class="font-bold mr-2">{{ index | clause }})</span>
             {{ opcion.text }}

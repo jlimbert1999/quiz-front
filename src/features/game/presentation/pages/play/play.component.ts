@@ -7,12 +7,12 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Router } from '@angular/router';
+import { interval, Subscription } from 'rxjs';
 
 import { questionResponse } from '../../../infrastructure';
 import { TransmisionService, MatchService } from '../../services';
 import { ClausePipe } from '../../pipes/clause.pipe';
-import { interval, Subscription } from 'rxjs';
-import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-play',
@@ -20,36 +20,6 @@ import { Router } from '@angular/router';
   imports: [CommonModule, ClausePipe],
   templateUrl: './play.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  styles: `
-
-
-@keyframes fall {
-  0% {
-    transform: translateY(-100%);
-  }
-  100% {
-    transform: translateY(100vh);
-  }
-}
-
-@keyframes flash {
-  0%, 100% {
-    opacity: 0;
-  }
-  50% {
-    opacity: 1;
-  }
-}
-
-.animate-fall {
-  animation: fall 2s linear infinite;
-}
-
-.animate-flash {
-  animation: flash 0.5s ease-out;
-}
-
-  `,
 })
 export class PlayComponent implements OnInit {
   private transmisionService = inject(TransmisionService);
@@ -58,14 +28,13 @@ export class PlayComponent implements OnInit {
   private router = inject(Router);
 
   match = signal(this.matchService.currentMatch()!);
-
   question = signal<questionResponse | undefined>(
     this.matchService.currentMatch()?.currentQuestion
   );
 
   isOptionsDisplayed = signal<boolean>(false);
   selectedIndex = signal<number | null>(null);
-  remainingTime = signal<number>(60);
+  remainingTime = signal<number>(this.match().timer);
 
   startTimer() {
     this.timerSubscription = interval(1000).subscribe(() => {
@@ -76,6 +45,7 @@ export class PlayComponent implements OnInit {
       }
     });
   }
+
   stopTimer() {
     if (this.timerSubscription) {
       this.timerSubscription.unsubscribe();
@@ -86,9 +56,8 @@ export class PlayComponent implements OnInit {
     this._listenNextQuestion();
     this._listenDisplayOptions();
     this._listenAnswerQuestion();
-    this._listenScore1();
-    this._listenScore2();
-    this.lisntewWinner()
+    this._listenScore();
+    this._listenWinner();
   }
 
   text = signal<string>('Esperando');
@@ -96,14 +65,14 @@ export class PlayComponent implements OnInit {
   ngOnInit(): void {}
 
   private _listenNextQuestion() {
-    this.stopTimer();
     this.transmisionService
       .listenNextQuestion()
       .pipe(takeUntilDestroyed())
       .subscribe((question) => {
-        this.isOptionsDisplayed.set(false);
+        this.stopTimer();
         this.selectedIndex.set(null);
-        this.remainingTime.set(60);
+        this.isOptionsDisplayed.set(false);
+        this.remainingTime.set(this.match().timer);
         this.match.update((values) => ({
           ...values,
           currentQuestion: question,
@@ -112,6 +81,7 @@ export class PlayComponent implements OnInit {
   }
 
   private _listenDisplayOptions() {
+    this.matchService.playSound('clock');
     this.transmisionService
       .listenDisplayOptions()
       .pipe(takeUntilDestroyed())
@@ -128,30 +98,29 @@ export class PlayComponent implements OnInit {
       .subscribe((index) => {
         this.stopTimer();
         this.selectedIndex.set(index);
+        const selectedOption = this.match().currentQuestion?.options[index];
+        this.matchService.playSound(
+          selectedOption?.isCorrect ? 'answer' : 'error'
+        );
       });
   }
 
-  private _listenScore1() {
-    this.transmisionService.listenScore1().subscribe((score) => {
+  private _listenScore() {
+    this.transmisionService.listenScore().subscribe((data) => {
       this.match.update((values) => {
-        values.player1.score = score;
+        if (data.player === 'player1') {
+          values.player1.score = data.score;
+        } else {
+          values.player2.score = data.score;
+        }
         return { ...values };
       });
     });
   }
 
-  private lisntewWinner() {
+  private _listenWinner() {
     this.transmisionService.listenWinner().subscribe(() => {
-      this.router.navigateByUrl('//game/winner');
-    });
-  }
-
-  private _listenScore2() {
-    this.transmisionService.listenScore2().subscribe((score) => {
-      this.match.update((values) => {
-        values.player2.score = score;
-        return { ...values };
-      });
+      this.router.navigateByUrl('/game/winner');
     });
   }
 

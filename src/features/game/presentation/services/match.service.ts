@@ -4,6 +4,11 @@ import { catchError, map, Observable, of } from 'rxjs';
 import { gameResponse, questionResponse } from '../../infrastructure';
 import { environment } from '../../../../environments/environment';
 
+interface updateMatchSettingsProps {
+  status?: string;
+  incrementBy?: number;
+  timer?: number;
+}
 @Injectable({
   providedIn: 'root',
 })
@@ -43,33 +48,22 @@ export class MatchService {
     });
   }
 
-  updateMatch(
-    gameId: string,
-    player: 'player1' | 'player2',
-    operation: 'add' | 'remove'
-  ) {
-    return this.http.post<{ score: number }>(`${this.url}/score/${gameId}`, {
-      player,
-      operation,
-    });
-  }
-
-  score1(gameId: string, value: number) {
-    return this.http.post<{ score: number }>(`${this.url}/score1/${gameId}`, {
-      score: value,
-    });
-  }
-
-  score2(gameId: string, value: number) {
-    return this.http.post<{ score: number }>(`${this.url}/score2/${gameId}`, {
-      score: value,
-    });
+  updateSettings(gameId: string, settings: updateMatchSettingsProps) {
+    return this.http.patch<gameResponse>(
+      `${this.url}/settings/${gameId}`,
+      settings
+    );
   }
 
   getNextQuestion(gameId: string, group: string) {
     return this.http.get<questionResponse>(
       `${this.url}/next/${gameId}/${group}`
     );
+  }
+
+  playSound(type: 'answer' | 'error' | 'clock') {
+    const audio = new Audio(`../../../../assets/${type}.mp3`);
+    audio.play();
   }
 
   answerQuestion(gameId: string, selectedIndex: number) {
