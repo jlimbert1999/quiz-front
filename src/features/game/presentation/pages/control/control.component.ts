@@ -44,6 +44,23 @@ import {
   HlmDialogTitleDirective,
   HlmDialogDescriptionDirective,
 } from '@spartan-ng/ui-dialog-helm';
+import { HlmToasterComponent } from '@spartan-ng/ui-helm-helm';
+import { toast } from 'ngx-sonner';
+import {
+  BrnAlertDialogTriggerDirective,
+  BrnAlertDialogContentDirective,
+} from '@spartan-ng/ui-alertdialog-brain';
+import {
+  HlmAlertDialogComponent,
+  HlmAlertDialogOverlayDirective,
+  HlmAlertDialogHeaderComponent,
+  HlmAlertDialogFooterComponent,
+  HlmAlertDialogTitleDirective,
+  HlmAlertDialogDescriptionDirective,
+  HlmAlertDialogCancelButtonDirective,
+  HlmAlertDialogActionButtonDirective,
+  HlmAlertDialogContentComponent,
+} from '@spartan-ng/ui-alertdialog-helm';
 
 @Component({
   selector: 'app-control',
@@ -73,6 +90,20 @@ import {
     HlmDialogFooterComponent,
     HlmDialogTitleDirective,
     HlmDialogDescriptionDirective,
+    HlmToasterComponent,
+
+    BrnAlertDialogTriggerDirective,
+    BrnAlertDialogContentDirective,
+
+    HlmAlertDialogComponent,
+    HlmAlertDialogOverlayDirective,
+    HlmAlertDialogHeaderComponent,
+    HlmAlertDialogFooterComponent,
+    HlmAlertDialogTitleDirective,
+    HlmAlertDialogDescriptionDirective,
+    HlmAlertDialogCancelButtonDirective,
+    HlmAlertDialogActionButtonDirective,
+    HlmAlertDialogContentComponent,
   ],
   templateUrl: './control.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -84,11 +115,10 @@ export class ControlComponent {
   private matchService = inject(MatchService);
   private transmisionService = inject(TransmisionService);
 
-  currentGroup = signal<string>('');
+  group = signal<string>('');
   groups = toSignal(this.questionService.getGroups(), { initialValue: [] });
   match = signal(this.matchService.currentMatch()!);
 
-  isOptionsDisplayed = signal<boolean>(false);
   isAnswered = signal<boolean>(false);
   selectedIndex = signal<number | null>(null);
 
@@ -101,23 +131,27 @@ export class ControlComponent {
   });
 
   getRandomQuestion(): void {
-    if (this.currentGroup() === '') return;
+    if (this.group() === '') return;
     this.isAnswered.set(false);
     this.selectedIndex.set(null);
-    this.isOptionsDisplayed.set(false);
     this.matchService
-      .getNextQuestion(this.match()._id, this.currentGroup())
+      .getNextQuestion(this.match()._id, this.group())
       .subscribe((question) => {
         this.match.update((values) => ({
           ...values,
+          status: 'pending',
           currentQuestion: question,
         }));
       });
   }
 
-  showOptions() {
-    this.isOptionsDisplayed.set(true);
-    this.transmisionService.showQuestionOptions(this.match()._id);
+  showQuestionOptions(): void {
+    if (this.match().status === 'selected') return;
+    this.matchService
+      .showQuestionOptions(this.match()._id)
+      .subscribe(({ status }) => {
+        this.match.update((values) => ({ ...values, status }));
+      });
   }
 
   answer(index: number) {
@@ -156,5 +190,12 @@ export class ControlComponent {
 
   winner() {
     this.transmisionService.showwinner(this.match()._id);
+  }
+
+  restartQuestions(context: any) {
+    this.matchService.restartQuestions().subscribe(({ message }) => {
+      toast.success(message, { duration: 3000 });
+      context.close();
+    });
   }
 }

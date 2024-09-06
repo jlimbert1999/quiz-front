@@ -31,12 +31,13 @@ export class PlayComponent implements OnInit {
   question = signal<questionResponse | undefined>(
     this.matchService.currentMatch()?.currentQuestion
   );
-
-  isOptionsDisplayed = signal<boolean>(false);
   selectedIndex = signal<number | null>(null);
   remainingTime = signal<number>(this.match().timer);
 
+  private audio: HTMLAudioElement | null = null;
+
   startTimer() {
+    this.matchService.playAudio('clock', true);
     this.timerSubscription = interval(1000).subscribe(() => {
       if (this.remainingTime() > 0) {
         this.remainingTime.update((values) => (values -= 1));
@@ -71,27 +72,30 @@ export class PlayComponent implements OnInit {
       .subscribe((question) => {
         this.stopTimer();
         this.selectedIndex.set(null);
-        this.isOptionsDisplayed.set(false);
         this.remainingTime.set(this.match().timer);
         this.match.update((values) => ({
           ...values,
+          status: 'pending',
           currentQuestion: question,
         }));
       });
   }
 
   private _listenDisplayOptions() {
-    this.matchService.playSound('clock');
     this.transmisionService
       .listenDisplayOptions()
       .pipe(takeUntilDestroyed())
       .subscribe(() => {
         this.startTimer();
-        this.isOptionsDisplayed.set(true);
+        this.match.update((values) => ({
+          ...values,
+          status: 'selected',
+        }));
       });
   }
 
   private _listenAnswerQuestion() {
+    this.matchService.stopAudio();
     this.transmisionService
       .listenAnswerQuestion()
       .pipe(takeUntilDestroyed())
@@ -99,7 +103,8 @@ export class PlayComponent implements OnInit {
         this.stopTimer();
         this.selectedIndex.set(index);
         const selectedOption = this.match().currentQuestion?.options[index];
-        this.matchService.playSound(
+        this.matchService.stopAudio();
+        this.matchService.playAudio(
           selectedOption?.isCorrect ? 'answer' : 'error'
         );
       });

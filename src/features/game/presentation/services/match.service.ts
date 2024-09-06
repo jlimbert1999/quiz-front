@@ -17,6 +17,7 @@ export class MatchService {
   private http = inject(HttpClient);
   private _currentMatch = signal<gameResponse | null>(null);
   currentMatch = computed(() => this._currentMatch());
+  private audio: HTMLAudioElement | null = null;
 
   constructor() {}
 
@@ -61,9 +62,30 @@ export class MatchService {
     );
   }
 
-  playSound(type: 'answer' | 'error' | 'clock') {
-    const audio = new Audio(`../../../../assets/${type}.mp3`);
-    audio.play();
+  restartQuestions() {
+    return this.http.get<{ message: string }>(`${this.url}/restart`);
+  }
+
+  showQuestionOptions(gameId: string) {
+    return this.http.get<{ status: string }>(`${this.url}/show/${gameId}`);
+  }
+
+  playAudio(type: 'answer' | 'error' | 'clock', loop = false): void {
+    if (!this.audio) {
+      this.audio = new Audio(`../../../../assets/${type}.mp3`);
+      if (loop) {
+        this.audio.loop = true; // Activar el bucle
+      }
+      this.audio.play();
+    }
+  }
+
+  stopAudio(): void {
+    if (this.audio) {
+      this.audio.pause();
+      this.audio.currentTime = 0; // Reinicia el audio al inicio
+      this.audio = null; // Liberar el recurso de audio
+    }
   }
 
   answerQuestion(gameId: string, selectedIndex: number) {

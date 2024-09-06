@@ -37,13 +37,9 @@ export class TransmisionService {
     });
   }
 
-  showQuestionOptions(gameId: string) {
-    this.socket.emit('show-options', gameId);
-  }
-
   listenDisplayOptions(): Observable<void> {
     return new Observable((observable) => {
-      this.socket.on('display-options', () => {
+      this.socket.on('show-options', () => {
         observable.next();
       });
     });

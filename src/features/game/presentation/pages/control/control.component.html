@@ -1,4 +1,5 @@
 <div class="h-screen">
+  <hlm-toaster />
   <div class="flex flex-column h-full">
     <div class="grow border rounded m-4 p-4 overflow-y-scroll">
       <div class="flex justify-between mb-2">
@@ -64,7 +65,7 @@
         </div>
         }
       </div>
-      @if(isOptionsDisplayed()){
+      @if(match().status==='selected'){
       <div class="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-6">
         @for (item of match().currentQuestion?.options; track $index) {
         <div
@@ -136,7 +137,14 @@
                   </div>
                 </div>
                 <hlm-dialog-footer>
-                  <button hlmBtn type="submit" [disabled]="matchConfigForm.invalid" (click)="ctx.close()">Guardar</button>
+                  <button
+                    hlmBtn
+                    type="submit"
+                    [disabled]="matchConfigForm.invalid"
+                    (click)="ctx.close()"
+                  >
+                    Guardar
+                  </button>
                 </hlm-dialog-footer>
               </form>
             </hlm-dialog-content>
@@ -146,7 +154,7 @@
           <hlm-select
             scrollable="true"
             placeholder="Seleccione el area"
-            [(ngModel)]="currentGroup"
+            [(ngModel)]="group"
           >
             <hlm-select-trigger class="w-full">
               <hlm-select-value />
@@ -159,23 +167,45 @@
           </hlm-select>
         </div>
         <div class="flex justify-center gap-2 flex-wrap">
-          <button
-            hlmBtn
-            [disabled]="!currentGroup()"
-            (click)="getRandomQuestion()"
-          >
+          <button hlmBtn [disabled]="!group()" (click)="getRandomQuestion()">
             Siguiente
           </button>
           <button
             hlmBtn
-            [disabled]="isOptionsDisplayed()"
-            (click)="showOptions()"
+            [disabled]="match().status === 'selected'"
+            (click)="showQuestionOptions()"
           >
             Mostrar
           </button>
           <button hlmBtn variant="destructive" (click)="winner()">
             Terminar
           </button>
+          <hlm-alert-dialog>
+            <button
+              id="edit-profile"
+              variant="outline"
+              brnAlertDialogTrigger
+              hlmBtn
+            >
+              Restablecer
+            </button>
+            <hlm-alert-dialog-content *brnAlertDialogContent="let ctx">
+              <hlm-alert-dialog-header>
+                <h3 hlmAlertDialogTitle>¿Restablecer Preguntas?</h3>
+                <p hlmAlertDialogDescription>
+                  Todas las preguntas respondidas volveran a mostrarse
+                </p>
+              </hlm-alert-dialog-header>
+              <hlm-alert-dialog-footer>
+                <button hlmAlertDialogCancel (click)="ctx.close()">
+                  Cancelar
+                </button>
+                <button hlmAlertDialogAction (click)="restartQuestions(ctx)">
+                  Resatablecer
+                </button>
+              </hlm-alert-dialog-footer>
+            </hlm-alert-dialog-content>
+          </hlm-alert-dialog>
         </div>
       </div>
     </div>
