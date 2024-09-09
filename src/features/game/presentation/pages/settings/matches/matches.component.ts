@@ -12,7 +12,7 @@ import { provideIcons } from '@ng-icons/core';
 import { lucidePlus } from '@ng-icons/lucide';
 
 @Component({
-  selector: 'app-matches',
+  selector: 'app-start',
   standalone: true,
   imports: [CommonModule, HlmIconComponent],
   templateUrl: './matches.component.html',

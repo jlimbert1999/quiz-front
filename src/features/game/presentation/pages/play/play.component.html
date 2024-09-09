@@ -18,11 +18,8 @@
 
     <!-- Contador en el centro -->
     <div class="text-center">
-      <p
-        class="text-6xl font-bold"
-        [ngClass]="{ 'red-600': remainingTime() < 10 }"
-      >
-        {{ remainingTime() }}
+      <p class="text-6xl font-bold">
+        {{ timeLeft() }}
       </p>
     </div>
 
@@ -46,20 +43,19 @@
   <div class="flex h-full">
     <!-- Contenido de la pregunta y opciones aquí -->
     <!-- Lado Izquierdo -->
-    <div
-      class="flex items-center justify-center p-4 w-1/2"
-    >
+    <div class="flex flex-col items-center justify-center p-4 w-1/2">
+      <div class="mt-4 text-4xl text-center px-4">
+        {{ match().currentQuestion?.text }}
+      </div>
+      @if (match().currentQuestion?.imageUrl) {
       <div>
         <img
-          src="ruta-a-la-imagen"
+          [src]="match().currentQuestion?.imageUrl"
           alt="Imagen de la Pregunta"
-          class="mt-4 mx-auto max-w-[200px] h-auto"
-          *ngIf="match().currentQuestion?.imageUrl"
+          class="mt-4 w-[350px]"
         />
-        <p class="mt-4 text-4xl text-center px-4">
-          {{ match().currentQuestion?.text }}
-        </p>
       </div>
+      }
     </div>
     @if(match().status === 'selected'){
 
@@ -73,7 +69,7 @@
             let opcion of match().currentQuestion?.options;
             let index = index
           "
-          class="border p-4 flex flex-col rounded-xl items-center justify-center"
+          class="border p-4 flex flex-col rounded-xl items-center border-2 justify-center"
           [ngClass]="{
             'bg-green-600 text-white':
               opcion.isCorrect && selectedIndex() !== null
@@ -85,11 +81,7 @@
         >
           @if(opcion.imageUrl){
           <div class="mb-4">
-            <img
-              [src]="opcion.imageUrl"
-              class="max-w-[200px]"
-              alt="Option image"
-            />
+            <img [src]="opcion.imageUrl" class="w-[350px] max-h-[80px]" alt="Option image" />
           </div>
           }
           <p class="text-2xl text-center">

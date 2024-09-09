@@ -56,11 +56,11 @@ interface uploadData {
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
+
     HlmIconComponent,
     HlmButtonDirective,
     HlmIconComponent,
-
-    FormsModule,
 
     BrnMenuTriggerDirective,
     HlmMenuModule,
@@ -100,6 +100,10 @@ export class QuestionsComponent implements OnInit {
   private questionService = inject(QuestionService);
   private readonly _hlmDialogService = inject(HlmDialogService);
 
+  groups = toSignal(this.questionService.getGroups(), { initialValue: [] });
+  group: string = '';
+  term: string = '';
+
   datasource = signal<questionResponse[]>([]);
   datasize = signal<number>(0);
   limit = signal<number>(10);
@@ -113,11 +117,21 @@ export class QuestionsComponent implements OnInit {
 
   getQuestions() {
     this.questionService
-      .getQuestions({ limit: this.limit(), offset: this.offset() })
+      .findQuestions({
+        limit: this.limit(),
+        offset: this.offset(),
+        group: this.group,
+        term: this.term,
+      })
       .subscribe(({ length, questions }) => {
         this.datasource.set(questions);
         this.datasize.set(length);
       });
+  }
+
+  applyFilter() {
+    this.offset.set(0);
+    this.getQuestions();
   }
 
   create(): void {

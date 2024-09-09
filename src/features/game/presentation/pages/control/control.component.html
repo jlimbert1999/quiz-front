@@ -25,6 +25,9 @@
             </button>
           </div>
         </div>
+        <div class="text-2xl">
+          {{ timeLeft() }}
+        </div>
         <div>
           <p>{{ match().player2.name }}</p>
           <p>Puntaje: {{ match().player2.score }}</p>
@@ -71,12 +74,12 @@
         <div
           class="cursor-pointer border rounded-lg p-4 flex flex-col items-center"
           [ngClass]="{
-                    'bg-green-600 text-white':isAnswered() && item.isCorrect,
-                    'pointer-events-none':isAnswered(),
-                    'hover:bg-slate-200':!isAnswered(),
+                    'bg-green-600 text-white':selectedIndex()!==null && item.isCorrect,
+                    'pointer-events-none':selectedIndex()!==null,
+                    'hover:bg-slate-200':selectedIndex()===null,
                     'bg-red-600 text-white': !item.isCorrect && selectedIndex() === $index,
                   }"
-          (click)="answer($index)"
+          (click)="answerQuestions($index)"
         >
           @if(item.imageUrl){
           <div class="mb-4">
@@ -96,9 +99,44 @@
     </div>
     <div class="w-[400px] shrink-0 p-2">
       <div class="flex flex-col space-y-4">
-        <div class="text-center">
+        <div>
+          <hlm-select
+            scrollable="true"
+            placeholder="Seleccione el area"
+            [(ngModel)]="group"
+          >
+            <hlm-select-trigger class="w-full">
+              <hlm-select-value />
+            </hlm-select-trigger>
+            <hlm-select-content class="max-h-56">
+              @for (group of groups(); track $index) {
+              <hlm-option [value]="group">{{ group }}</hlm-option>
+              }
+            </hlm-select-content>
+          </hlm-select>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <button
+            hlmBtn
+            [disabled]="group() === ''"
+            (click)="getRandomQuestion()"
+          >
+            <hlm-icon size="sm" class="mr-2" name="lucideArrowRight" />
+            Siguiente
+          </button>
+          <button
+            hlmBtn
+            [disabled]="
+              match().status === 'selected' || !match().currentQuestion
+            "
+            (click)="showQuestionOptions()"
+          >
+            <hlm-icon size="sm" class="mr-2" name="lucideEye" />
+            Mostrar
+          </button>
           <hlm-dialog>
-            <button id="edit-profile" brnDialogTrigger hlmBtn>
+            <button hlmBtn brnDialogTrigger class="w-full">
+              <hlm-icon size="sm" class="mr-2" name="lucideSettings" />
               Configurar
             </button>
             <hlm-dialog-content
@@ -108,7 +146,7 @@
               <hlm-dialog-header>
                 <h3 hlmDialogTitle>Configuracion</h3>
               </hlm-dialog-header>
-              <form [formGroup]="matchConfigForm" (ngSubmit)="updateSettings()">
+              <form [formGroup]="formMatch" (ngSubmit)="updateMatchSettings()">
                 <div class="py-4 grid gap-4">
                   <div class="items-center grid grid-cols-4 gap-4">
                     <label hlmLabel for="timer" class="text-right col-span-2"
@@ -140,7 +178,7 @@
                   <button
                     hlmBtn
                     type="submit"
-                    [disabled]="matchConfigForm.invalid"
+                    [disabled]="formMatch.invalid"
                     (click)="ctx.close()"
                   >
                     Guardar
@@ -149,44 +187,9 @@
               </form>
             </hlm-dialog-content>
           </hlm-dialog>
-        </div>
-        <div>
-          <hlm-select
-            scrollable="true"
-            placeholder="Seleccione el area"
-            [(ngModel)]="group"
-          >
-            <hlm-select-trigger class="w-full">
-              <hlm-select-value />
-            </hlm-select-trigger>
-            <hlm-select-content class="max-h-56">
-              @for (group of groups(); track $index) {
-              <hlm-option [value]="group">{{ group }}</hlm-option>
-              }
-            </hlm-select-content>
-          </hlm-select>
-        </div>
-        <div class="flex justify-center gap-2 flex-wrap">
-          <button hlmBtn [disabled]="!group()" (click)="getRandomQuestion()">
-            Siguiente
-          </button>
-          <button
-            hlmBtn
-            [disabled]="match().status === 'selected'"
-            (click)="showQuestionOptions()"
-          >
-            Mostrar
-          </button>
-          <button hlmBtn variant="destructive" (click)="winner()">
-            Terminar
-          </button>
           <hlm-alert-dialog>
-            <button
-              id="edit-profile"
-              variant="outline"
-              brnAlertDialogTrigger
-              hlmBtn
-            >
+            <button hlmBtn brnAlertDialogTrigger class="w-full">
+              <hlm-icon size="sm" class="mr-2" name="lucideListRestart" />
               Restablecer
             </button>
             <hlm-alert-dialog-content *brnAlertDialogContent="let ctx">
@@ -202,6 +205,42 @@
                 </button>
                 <button hlmAlertDialogAction (click)="restartQuestions(ctx)">
                   Resatablecer
+                </button>
+              </hlm-alert-dialog-footer>
+            </hlm-alert-dialog-content>
+          </hlm-alert-dialog>
+
+          <hlm-alert-dialog>
+            <button hlmBtn brnAlertDialogTrigger class="w-full">
+              <hlm-icon size="sm" class="mr-2" name="lucideCheck" />
+              Finalizar
+            </button>
+            <hlm-alert-dialog-content *brnAlertDialogContent="let ctx">
+              <hlm-alert-dialog-header>
+                <h3 hlmAlertDialogTitle>¿Finalizar Partida?</h3>
+                <div hlmAlertDialogDescription class="space-y-2">
+                  <p>
+                    Esta opcion mostrara al participante ganador. No se podra
+                    modificar
+                  </p>
+                  <p>
+                    {{ match().player1.name }} / Puntaje: ({{
+                      match().player1.score
+                    }})
+                  </p>
+                  <p>
+                    {{ match().player2.name }} / Puntaje: ({{
+                      match().player2.score
+                    }})
+                  </p>
+                </div>
+              </hlm-alert-dialog-header>
+              <hlm-alert-dialog-footer>
+                <button hlmAlertDialogCancel (click)="ctx.close()">
+                  Cancelar
+                </button>
+                <button hlmAlertDialogAction (click)="endMatch()">
+                  Finalizar
                 </button>
               </hlm-alert-dialog-footer>
             </hlm-alert-dialog-content>

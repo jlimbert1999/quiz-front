@@ -16,9 +16,7 @@ export class TransmisionService {
   private socket: Socket;
 
   constructor() {
-    this.socket = io(environment.base_url, {
-      auth: { chanel: localStorage.getItem('match') },
-    });
+    this.socket = io(environment.base_url);
   }
 
   listenNextQuestion(): Observable<questionResponse> {
@@ -63,6 +61,24 @@ export class TransmisionService {
         observable.next(data);
       });
     });
+  }
+
+  listenNewMatch() {
+    return new Observable((observable) => {
+      this.socket.on('new-match', () => {
+        observable.next();
+      });
+    });
+  }
+
+  listenSettings() {
+    return new Observable<{ incrementBy: number; timer: number }>(
+      (observable) => {
+        this.socket.on('match-settings', (data) => {
+          observable.next(data);
+        });
+      }
+    );
   }
 
   disconnect() {

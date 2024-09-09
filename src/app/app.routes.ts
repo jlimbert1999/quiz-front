@@ -1,35 +1,33 @@
 import { Routes } from '@angular/router';
-import { MatchesComponent } from '../features/game/presentation/pages/matches/matches.component';
-import { HomeComponent } from '../features/game/presentation/pages/home/home.component';
-import { SettingsComponent } from '../features/game/presentation/pages/settings/settings.component';
+import { StartComponent } from '../features/game/presentation/pages/start/start.component';
 import { QuestionsComponent } from '../features/game/presentation/pages/settings/questions/questions.component';
 import { ControlComponent } from '../features/game/presentation/pages/control/control.component';
 import { PlayComponent } from '../features/game/presentation/pages/play/play.component';
-import { gameGuard } from '../features/game/presentation/guards/game.guard';
-import { WinerComponent } from '../features/game/winer/winer.component';
+import { matchGuard } from '../features/game/presentation/guards/match.guard';
+import { MatchModeComponent } from '../features/game/presentation/pages/match-mode/match-mode.component';
+import { isNotMatchConfigGuard } from '../features/game/presentation/guards/is-not-match-config.guard';
+import { FinishComponent } from '../features/game/presentation/pages/finish/finish.component';
 
 export const routes: Routes = [
-  { path: 'main', component: HomeComponent },
   { path: 'questions', component: QuestionsComponent },
   {
-    path: 'settings',
-    component: SettingsComponent,
-    children: [
-      { path: 'matches', component: MatchesComponent },
-
-      { path: '', redirectTo: 'questions', pathMatch: 'full' },
-    ],
+    path: 'start',
+    canActivate: [isNotMatchConfigGuard],
+    component: StartComponent,
   },
-  { path: 'menu', component: MatchesComponent },
+  {
+    path: 'finish/:id',
+    component: FinishComponent,
+  },
   {
     path: 'game',
-    canActivate: [gameGuard],
+    canActivate: [matchGuard],
     children: [
+      { path: 'mode', component: MatchModeComponent },
       { path: 'play', component: PlayComponent },
       { path: 'control', component: ControlComponent },
-      { path: 'winner', component: WinerComponent },
     ],
   },
-  { path: '**', component: MatchesComponent },
-  { path: '', redirectTo: 'menu', pathMatch: 'full' },
+  { path: '', redirectTo: '/game/mode', pathMatch: 'full' },
+  { path: '**', redirectTo: '/game/mode' },
 ];

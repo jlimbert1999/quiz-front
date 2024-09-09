@@ -3,6 +3,12 @@ import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../../environments/environment';
 import { questionResponse } from '../../infrastructure';
 
+interface filterQuestionsParams {
+  limit: number;
+  offset: number;
+  term?: string;
+  group?: string;
+}
 @Injectable({
   providedIn: 'root',
 })
@@ -20,9 +26,14 @@ export class QuestionService {
     return this.http.patch<questionResponse>(`${this.url}/${id}`, form);
   }
 
-  getQuestions(pagination: { limit: number; offset: number }) {
+  findQuestions({ limit, offset, term, group }: filterQuestionsParams) {
     const params = new HttpParams({
-      fromObject: { limit: pagination.limit, offset: pagination.offset },
+      fromObject: {
+        limit: limit,
+        offset: offset,
+        ...(term && { term }),
+        ...(group && { group }),
+      },
     });
     return this.http.get<{
       questions: questionResponse[];

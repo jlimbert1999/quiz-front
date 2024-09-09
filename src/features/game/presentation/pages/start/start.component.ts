@@ -24,7 +24,7 @@ import { MatchService } from '../../services/match.service';
 import { MatchComponent } from './match/match.component';
 
 @Component({
-  selector: 'app-matches',
+  selector: 'app-start',
   standalone: true,
   imports: [
     RouterModule,
@@ -35,22 +35,16 @@ import { MatchComponent } from './match/match.component';
     HlmTooltipTriggerDirective,
     BrnTooltipContentDirective,
   ],
-  templateUrl: './matches.component.html',
+  templateUrl: './start.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [provideIcons({ lucidePlay, lucideSettings2, lucidePlus })],
 })
-export class MatchesComponent implements OnInit {
+export class StartComponent implements OnInit {
   private matchService = inject(MatchService);
   private router = inject(Router);
   private readonly _hlmDialogService = inject(HlmDialogService);
 
-  matches = signal<gameResponse[]>([]);
-
-  ngOnInit(): void {
-    this.matchService.getPendings().subscribe((data) => {
-      this.matches.set(data);
-    });
-  }
+  ngOnInit(): void {}
 
   create(): void {
     const dialogRef = this._hlmDialogService.open(MatchComponent, {
@@ -58,12 +52,7 @@ export class MatchesComponent implements OnInit {
     });
     dialogRef.closed$.subscribe((match?: gameResponse) => {
       if (!match) return;
-      this.matches.update((values) => [match, ...values]);
+      this.router.navigateByUrl(`/game/mode`);
     });
-  }
-
-  start(match: gameResponse, mode: 'play' | 'control') {
-    localStorage.setItem('match', match._id);
-    this.router.navigateByUrl(`/game/${mode}`);
   }
 }

@@ -19,18 +19,17 @@ import { HlmButtonDirective } from '@spartan-ng/ui-button-helm';
 import { BrnSelectImports } from '@spartan-ng/ui-select-brain';
 import { HlmInputDirective } from '@spartan-ng/ui-input-helm';
 import { HlmSelectImports } from '@spartan-ng/ui-select-helm';
-import { lucideMinus, lucidePlus } from '@ng-icons/lucide';
-
 import {
-  HlmCardDirective,
-  HlmCardHeaderDirective,
-  HlmCardTitleDirective,
-  HlmCardDescriptionDirective,
-  HlmCardContentDirective,
-} from '@spartan-ng/ui-card-helm';
+  lucideArrowRight,
+  lucideCheck,
+  lucideEye,
+  lucideListRestart,
+  lucideMinus,
+  lucidePlus,
+  lucideSettings,
+} from '@ng-icons/lucide';
 
-import { QuestionService, TransmisionService } from '../../services';
-import { MatchService } from '../../services/match.service';
+import { QuestionService, MatchService } from '../../services';
 import { ClausePipe } from '../../pipes/clause.pipe';
 import {
   BrnDialogTriggerDirective,
@@ -61,6 +60,8 @@ import {
   HlmAlertDialogActionButtonDirective,
   HlmAlertDialogContentComponent,
 } from '@spartan-ng/ui-alertdialog-helm';
+import { interval, Subscription, takeWhile } from 'rxjs';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-control',
@@ -72,16 +73,9 @@ import {
     BrnSelectImports,
     HlmSelectImports,
     HlmButtonDirective,
-
-    HlmCardDirective,
-    HlmCardHeaderDirective,
-    HlmCardTitleDirective,
-    HlmCardDescriptionDirective,
-    HlmCardContentDirective,
     HlmIconComponent,
     ClausePipe,
     HlmInputDirective,
-
     BrnDialogTriggerDirective,
     BrnDialogContentDirective,
     HlmDialogComponent,
@@ -91,10 +85,8 @@ import {
     HlmDialogTitleDirective,
     HlmDialogDescriptionDirective,
     HlmToasterComponent,
-
     BrnAlertDialogTriggerDirective,
     BrnAlertDialogContentDirective,
-
     HlmAlertDialogComponent,
     HlmAlertDialogOverlayDirective,
     HlmAlertDialogHeaderComponent,
@@ -107,22 +99,30 @@ import {
   ],
   templateUrl: './control.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [provideIcons({ lucidePlus, lucideMinus })],
+  providers: [
+    provideIcons({
+      lucideEye,
+      lucidePlus,
+      lucideCheck,
+      lucideMinus,
+      lucideSettings,
+      lucideArrowRight,
+      lucideListRestart,
+    }),
+  ],
 })
 export class ControlComponent {
   private formBuilder = inject(FormBuilder);
-  private questionService = inject(QuestionService);
   private matchService = inject(MatchService);
-  private transmisionService = inject(TransmisionService);
+  private questionService = inject(QuestionService);
+  private router = inject(Router);
 
   group = signal<string>('');
   groups = toSignal(this.questionService.getGroups(), { initialValue: [] });
   match = signal(this.matchService.currentMatch()!);
 
-  isAnswered = signal<boolean>(false);
   selectedIndex = signal<number | null>(null);
-
-  matchConfigForm: FormGroup = this.formBuilder.group({
+  formMatch: FormGroup = this.formBuilder.group({
     incrementBy: [
       this.match().incrementBy,
       [Validators.required, Validators.min(1)],
@@ -130,10 +130,15 @@ export class ControlComponent {
     timer: [this.match().timer, [Validators.required, Validators.min(1)]],
   });
 
+  private timer$: Subscription | null = null;
+  timeLeft = signal<number>(this.match().timer);
+
   getRandomQuestion(): void {
     if (this.group() === '') return;
-    this.isAnswered.set(false);
+    this.stopTimer();
     this.selectedIndex.set(null);
+    this.timeLeft.set(this.match().timer);
+
     this.matchService
       .getNextQuestion(this.match()._id, this.group())
       .subscribe((question) => {
@@ -146,7 +151,10 @@ export class ControlComponent {
   }
 
   showQuestionOptions(): void {
-    if (this.match().status === 'selected') return;
+    if (this.match().status === 'selected' || !this.match().currentQuestion) {
+      return;
+    }
+    this.startTimer();
     this.matchService
       .showQuestionOptions(this.match()._id)
       .subscribe(({ status }) => {
@@ -154,9 +162,9 @@ export class ControlComponent {
       });
   }
 
-  answer(index: number) {
-    if (this.isAnswered()) return;
-    this.isAnswered.set(true);
+  answerQuestions(index: number): void {
+    if (this.selectedIndex() !== null) return;
+    this.stopTimer();
     this.selectedIndex.set(index);
     this.matchService.answerQuestion(this.match()._id, index).subscribe();
   }
@@ -176,10 +184,11 @@ export class ControlComponent {
       });
   }
 
-  updateSettings() {
+  updateMatchSettings(): void {
     this.matchService
-      .updateSettings(this.match()._id, this.matchConfigForm.value)
+      .updateMatchSettings(this.match()._id, this.formMatch.value)
       .subscribe(({ timer, incrementBy }) => {
+        this.timeLeft.set(timer);
         this.match.update((values) => {
           values.incrementBy = incrementBy;
           values.timer = timer;
@@ -188,14 +197,30 @@ export class ControlComponent {
       });
   }
 
-  winner() {
-    this.transmisionService.showwinner(this.match()._id);
-  }
-
   restartQuestions(context: any) {
     this.matchService.restartQuestions().subscribe(({ message }) => {
       toast.success(message, { duration: 3000 });
       context.close();
     });
+  }
+
+  endMatch() {
+    this.matchService.endMatch(this.match()._id).subscribe(() => {
+      this.router.navigateByUrl(`/start`);
+    });
+  }
+
+  startTimer(): void {
+    this.timer$ = interval(1000)
+      .pipe(takeWhile(() => this.timeLeft() > 0))
+      .subscribe(() => {
+        this.timeLeft.update((value) => (value -= 1));
+      });
+  }
+
+  stopTimer(): void {
+    if (this.timer$) {
+      this.timer$.unsubscribe();
+    }
   }
 }

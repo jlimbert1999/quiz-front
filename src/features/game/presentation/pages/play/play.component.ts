@@ -8,11 +8,15 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
-import { interval, Subscription } from 'rxjs';
+import { interval, Subscription, takeWhile, tap } from 'rxjs';
 
 import { questionResponse } from '../../../infrastructure';
 import { TransmisionService, MatchService } from '../../services';
 import { ClausePipe } from '../../pipes/clause.pipe';
+import {
+  FullscreenOverlayContainer,
+  OverlayContainer,
+} from '@angular/cdk/overlay';
 
 @Component({
   selector: 'app-play',
@@ -20,38 +24,23 @@ import { ClausePipe } from '../../pipes/clause.pipe';
   imports: [CommonModule, ClausePipe],
   templateUrl: './play.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [
+    { provide: OverlayContainer, useClass: FullscreenOverlayContainer },
+  ],
 })
 export class PlayComponent implements OnInit {
+  private router = inject(Router);
   private transmisionService = inject(TransmisionService);
   private matchService = inject(MatchService);
-  private timerSubscription?: Subscription;
-  private router = inject(Router);
 
   match = signal(this.matchService.currentMatch()!);
   question = signal<questionResponse | undefined>(
     this.matchService.currentMatch()?.currentQuestion
   );
   selectedIndex = signal<number | null>(null);
-  remainingTime = signal<number>(this.match().timer);
 
-  private audio: HTMLAudioElement | null = null;
-
-  startTimer() {
-    this.matchService.playAudio('clock', true);
-    this.timerSubscription = interval(1000).subscribe(() => {
-      if (this.remainingTime() > 0) {
-        this.remainingTime.update((values) => (values -= 1));
-      } else {
-        this.stopTimer();
-      }
-    });
-  }
-
-  stopTimer() {
-    if (this.timerSubscription) {
-      this.timerSubscription.unsubscribe();
-    }
-  }
+  private timer$: Subscription | null = null;
+  timeLeft = signal<number>(this.match().timer);
 
   constructor() {
     this._listenNextQuestion();
@@ -59,11 +48,11 @@ export class PlayComponent implements OnInit {
     this._listenAnswerQuestion();
     this._listenScore();
     this._listenWinner();
+    this._listenSettings();
   }
 
-  text = signal<string>('Esperando');
-
-  ngOnInit(): void {}
+  ngOnInit(): void {
+  }
 
   private _listenNextQuestion() {
     this.transmisionService
@@ -72,7 +61,7 @@ export class PlayComponent implements OnInit {
       .subscribe((question) => {
         this.stopTimer();
         this.selectedIndex.set(null);
-        this.remainingTime.set(this.match().timer);
+        this.timeLeft.set(this.match().timer);
         this.match.update((values) => ({
           ...values,
           status: 'pending',
@@ -105,7 +94,7 @@ export class PlayComponent implements OnInit {
         const selectedOption = this.match().currentQuestion?.options[index];
         this.matchService.stopAudio();
         this.matchService.playAudio(
-          selectedOption?.isCorrect ? 'answer' : 'error'
+          selectedOption?.isCorrect ? 'correct' : 'wrong'
         );
       });
   }
@@ -124,14 +113,48 @@ export class PlayComponent implements OnInit {
   }
 
   private _listenWinner() {
-    this.transmisionService.listenWinner().subscribe(() => {
-      this.router.navigateByUrl('/game/winner');
-    });
+    this.transmisionService
+      .listenWinner()
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => {
+        this.router.navigateByUrl(`/finish/${this.match()._id}`);
+      });
   }
 
-  esOpcionPequena(opcion: any): boolean {
-    const textoCorto = opcion.texto && opcion.texto.length < 30;
-    const sinImagen = !opcion.imagen;
-    return textoCorto || sinImagen;
+  private _listenSettings() {
+    this.transmisionService
+      .listenSettings()
+      .pipe(takeUntilDestroyed())
+      .subscribe((settings) => {
+        this.timeLeft.set(settings.timer);
+        this.match.update((values) => {
+          values.incrementBy = settings.incrementBy;
+          values.timer = settings.timer;
+          return { ...values };
+        });
+      });
+  }
+
+  startTimer(): void {
+    this.matchService.playAudio('clock', true);
+    this.timer$ = interval(1000)
+      .pipe(
+        tap(() => {
+          if (this.timeLeft() === 0) {
+            this.stopTimer()
+          }
+        }),
+        takeWhile(() => this.timeLeft() > 0)
+      )
+      .subscribe(() => {
+        this.timeLeft.update((value) => (value -= 1));
+      });
+  }
+
+  stopTimer(): void {
+    this.matchService.stopAudio();
+    if (this.timer$) {
+      this.timer$.unsubscribe();
+    }
   }
 }

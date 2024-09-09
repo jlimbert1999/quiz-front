@@ -21,21 +21,19 @@ export class MatchService {
 
   constructor() {}
 
-  create(form: Object) {
-    return this.http.post<gameResponse>(this.url, form);
-  }
-
-  getPendings() {
-    return this.http.get<gameResponse[]>(this.url);
-  }
-
   checkCurrentMatch(): Observable<boolean> {
-    const matchId = localStorage.getItem('match');
-    if (!matchId) return of(false);
-    return this.http.get<gameResponse>(`${this.url}/check/${matchId}`).pipe(
+    return this.http.get<gameResponse>(`${this.url}/check`).pipe(
       map((resp) => this._setGame(resp)),
       catchError(() => of(false))
     );
+  }
+
+  getMatchResult(id: string) {
+    return this.http.get<gameResponse>(`${this.url}/result/${id}`);
+  }
+
+  create(form: Object) {
+    return this.http.post<gameResponse>(this.url, form);
   }
 
   updateScore(
@@ -49,11 +47,8 @@ export class MatchService {
     });
   }
 
-  updateSettings(gameId: string, settings: updateMatchSettingsProps) {
-    return this.http.patch<gameResponse>(
-      `${this.url}/settings/${gameId}`,
-      settings
-    );
+  updateMatchSettings(id: string, settings: updateMatchSettingsProps) {
+    return this.http.patch<gameResponse>(`${this.url}/${id}`, settings);
   }
 
   getNextQuestion(gameId: string, group: string) {
@@ -66,11 +61,18 @@ export class MatchService {
     return this.http.get<{ message: string }>(`${this.url}/restart`);
   }
 
+  endMatch(id: string) {
+    return this.http.delete<{ message: string }>(`${this.url}/${id}`);
+  }
+
   showQuestionOptions(gameId: string) {
     return this.http.get<{ status: string }>(`${this.url}/show/${gameId}`);
   }
 
-  playAudio(type: 'answer' | 'error' | 'clock', loop = false): void {
+  playAudio(
+    type: 'correct' | 'wrong' | 'clock' | 'winner',
+    loop = false
+  ): void {
     if (!this.audio) {
       this.audio = new Audio(`../../../../assets/${type}.mp3`);
       if (loop) {
