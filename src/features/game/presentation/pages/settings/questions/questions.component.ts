@@ -107,7 +107,8 @@ export class QuestionsComponent implements OnInit {
   datasource = signal<questionResponse[]>([]);
   datasize = signal<number>(0);
   limit = signal<number>(10);
-  offset = signal<number>(0);
+  offset = computed(() => this.index() * this.limit());
+  index = signal<number>(0);
 
   constructor() {}
 
@@ -130,7 +131,7 @@ export class QuestionsComponent implements OnInit {
   }
 
   applyFilter() {
-    this.offset.set(0);
+    this.index.set(0);
     this.getQuestions();
   }
 
@@ -161,7 +162,7 @@ export class QuestionsComponent implements OnInit {
 
   changepage(params: { pageSize: number; pageOffset: number }) {
     this.limit.set(params.pageSize);
-    this.offset.set(params.pageOffset);
+    this.index.set(params.pageOffset);
     this.getQuestions();
   }
 

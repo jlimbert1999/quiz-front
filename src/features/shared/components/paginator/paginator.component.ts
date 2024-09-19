@@ -4,6 +4,7 @@ import {
   Component,
   computed,
   input,
+  model,
   output,
   signal,
 } from '@angular/core';
@@ -22,9 +23,7 @@ import { HlmSelectImports } from '@spartan-ng/ui-select-helm';
   ],
   template: `
     <div class="flex p-2 flex-col justify-between sm:flex-row sm:items-center">
-      <span class="text-sm text-muted-foreground text-sm"
-        >  </span
-      >
+      <span class="text-sm text-muted-foreground text-sm"> {{ offset() }} - {{length()}}</span>
       <div class="flex mt-2 sm:mt-0">
         <!-- <brn-select class="inline-block">
           <hlm-select-trigger class="inline-flex mr-1 w-15 h-9">
@@ -54,19 +53,19 @@ export class PaginatorComponent {
   length = input.required<number>();
   limit = input.required<number>();
   pageSizeOptions = input<number[]>([]);
+  index = model.required<number>();
 
   onPageChange = output<{ pageSize: number; pageOffset: number }>();
 
-  index = signal<number>(0);
   offset = computed(() => this.index() * this.limit());
   remainig = computed(() => this.length() - this.offset());
-  
+
   next() {
-    if (this.offset() > this.remainig()) return;
+    if (this.limit() >= this.remainig()) return;
     this.index.update((value) => (value += 1));
     this.onPageChange.emit({
       pageSize: this.limit(),
-      pageOffset: this.offset(),
+      pageOffset: this.index(),
     });
   }
 
@@ -75,7 +74,7 @@ export class PaginatorComponent {
     this.index.update((value) => (value -= 1));
     this.onPageChange.emit({
       pageSize: this.limit(),
-      pageOffset: this.offset(),
+      pageOffset: this.index(),
     });
   }
 }

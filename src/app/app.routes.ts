@@ -9,7 +9,7 @@ import { isNotMatchConfigGuard } from '../features/game/presentation/guards/is-n
 import { FinishComponent } from '../features/game/presentation/pages/finish/finish.component';
 
 export const routes: Routes = [
-  { path: 'questions', component: QuestionsComponent },
+  { path: 'preguntas', component: QuestionsComponent },
   {
     path: 'start',
     canActivate: [isNotMatchConfigGuard],
